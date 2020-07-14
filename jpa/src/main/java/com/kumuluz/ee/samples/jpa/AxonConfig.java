@@ -7,6 +7,7 @@ import com.kumuluz.ee.samples.jpa.command.GiftCard;
 import com.kumuluz.ee.samples.kumuluzee.axon.AggregateRepository;
 import com.kumuluz.ee.samples.kumuluzee.axon.AxonConfiguration;
 import com.kumuluz.ee.samples.kumuluzee.axon.AxonConfigurationCdiExtension;
+import com.kumuluz.ee.samples.kumuluzee.axon.properties.SerializerProperties;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.gateway.*;
 import org.axonframework.common.jpa.EntityManagerProvider;
@@ -20,12 +21,16 @@ import org.axonframework.eventsourcing.EventSourcingRepository;
 import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;
 import org.axonframework.modelling.command.GenericJpaRepository;
 import org.axonframework.modelling.command.Repository;
+import org.axonframework.serialization.AnnotationRevisionResolver;
+import org.axonframework.serialization.FixedValueRevisionResolver;
+import org.axonframework.serialization.RevisionResolver;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import com.kumuluz.ee.samples.jpa.query.GiftCardEventHandler;
 import com.kumuluz.ee.samples.jpa.query.GiftCardQueryHandler;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
@@ -89,6 +94,11 @@ public class AxonConfig {
 
         return configurer;
         //CommandGateway cmdGateway = DefaultCommandGateway.builder().commandBus(config.commandBus()).build();
+    }
+
+    @Produces
+    public RevisionResolver revisionResolver() {
+        return new FixedValueRevisionResolver("true");
     }
 
 

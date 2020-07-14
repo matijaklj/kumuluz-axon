@@ -1,5 +1,6 @@
 package com.kumuluz.ee.samples.kumuluzee.axon;
 
+import com.kumuluz.ee.samples.kumuluzee.axon.properties.SerializerProperties;
 import org.axonframework.common.Registration;
 import org.axonframework.common.jpa.EntityManagerProvider;
 import org.axonframework.config.AggregateConfigurer;
@@ -13,6 +14,7 @@ import org.axonframework.modelling.command.GenericJpaRepository;
 import org.axonframework.modelling.command.Repository;
 
 import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +22,8 @@ import java.util.function.Consumer;
 
 public class AxonConfigurationInitializer {
 
-    public static Configurer initializeAxonConfigurer() {
+
+    static Configurer initializeAxonConfigurer() {
 
         // todo check kumuluz config for axon config init setting
         // if initialize default or jpa configs
@@ -31,7 +34,8 @@ public class AxonConfigurationInitializer {
         return  configurer;
     }
 
-    public static Configurer registerAnnotatedAggregates(BeanManager bm,
+
+    static Configurer registerAnnotatedAggregates(BeanManager bm,
                                                          Configurer configurer,
                                                          List<AnnotatedInstance<Aggregate>> instanceList,
                                                          List<AnnotatedInstance<AggregateRepository>> repoInstanceList) {

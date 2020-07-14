@@ -1,5 +1,6 @@
 package com.kumuluz.ee.samples.kumuluzee.axon;
 
+import com.kumuluz.ee.samples.kumuluzee.axon.properties.SerializerProperties;
 import com.kumuluz.ee.samples.kumuluzee.axon.util.TypesBeanAttributes;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.config.Configuration;
@@ -7,6 +8,9 @@ import org.axonframework.config.Configurer;
 import org.axonframework.config.DefaultConfigurer;
 import org.axonframework.eventhandling.gateway.EventGateway;
 import org.axonframework.queryhandling.QueryGateway;
+import org.axonframework.serialization.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
@@ -16,14 +20,20 @@ import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.spi.*;
 import javax.enterprise.util.AnnotationLiteral;
+import javax.inject.Inject;
 import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.logging.Logger;
 
 public class AxonConfigurationCdiExtension implements Extension {
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    @Inject
+    private SerializerProperties serializerProperties;
 
     List<AnnotatedInstance<Aggregate>> annotatedAggregateInstanceList = new ArrayList<>();
     List<AnnotatedInstance<AggregateRepository>> annotatedAggregateRepoInstanceList = new ArrayList<>();
@@ -42,8 +52,6 @@ public class AxonConfigurationCdiExtension implements Extension {
 
     //AnnotatedType<AxonConfig> annotatedType;
 
-    private static final Logger log = Logger.getLogger(AxonConfigurationCdiExtension.class.getName());
-
     public <X> void processAxonConfigurationAnnotations(@Observes ProcessBean<X> pat) {
         for (Method method : pat.getBean().getBeanClass().getMethods()) {
             if (method.getAnnotation(AxonConfiguration.class) != null) {
@@ -52,14 +60,14 @@ public class AxonConfigurationCdiExtension implements Extension {
 
                 if (method.getReturnType().equals(Configurer.class)) {
                     if (this.configurerInstance != null)
-                        log.warning("only one method can be annotated for axon configuration");
+                        log.error("only one method can be annotated for axon configuration");
 
                     this.configurerInstance = new AnnotatedInstance<>(pat.getBean(), method, annotation);
                 }
 
                 if (method.getReturnType().equals(CommandGateway.class)) {
                     if (this.commandGatewayInstance != null)
-                        log.warning("only one method can be annotated for axon CommandGateway");
+                        log.error("only one method can be annotated for axon CommandGateway");
 
                     this.commandGatewayInstances.add(new AnnotatedInstance<>(pat.getBean(), method, annotation));
                     //this.commandGatewayInstance = new AnnotatedInstance<>(pat.getBean(), method, annotation);
@@ -67,7 +75,7 @@ public class AxonConfigurationCdiExtension implements Extension {
 
                 if (method.getReturnType().equals(EventGateway.class)) {
                     if (this.eventGatewayInstance != null)
-                        log.warning("only one method can be annotated for axon EventGateway");
+                        log.error("only one method can be annotated for axon EventGateway");
 
                     this.eventGatewayInstance = new AnnotatedInstance<>(pat.getBean(), method, annotation);
                 }
@@ -75,7 +83,7 @@ public class AxonConfigurationCdiExtension implements Extension {
 
                 if (method.getReturnType().equals(QueryGateway.class)) {
                     if (this.queryGatewayInstance != null)
-                        log.warning("only one method can be annotated for axon QueryGateway");
+                        log.error("only one method can be annotated for axon QueryGateway");
 
                     this.queryGatewayInstance = new AnnotatedInstance<>(pat.getBean(), method, annotation);
                 }
@@ -111,7 +119,7 @@ public class AxonConfigurationCdiExtension implements Extension {
     }
 
     public void createProducerBeans(@Observes AfterBeanDiscovery event, BeanManager bm) {
-        // todo here create ean for any annotated gateway method
+        // todo here create bean for any annotated gateway method
         // command gateway
         if (this.commandGatewayInstances.isEmpty()) {
             // todo create a default bean from config.getCommandGateway
@@ -123,7 +131,10 @@ public class AxonConfigurationCdiExtension implements Extension {
                         .filter(m -> m.getJavaMember().getName().equals(cmdGatewayInst.getMethod().getName()))
                         .findFirst()
                         .get();
+
                 final BeanAttributes<?> producerAttributes = bm.createBeanAttributes(producerMethod);
+
+                log.debug("Registering producer bean for {}", cmdGatewayInst.getMethod().getName());
 
                 final Bean<?> bean =
                         bm.createBean(new DelegatingBeanAttributes<Object>(producerAttributes) {
@@ -135,7 +146,7 @@ public class AxonConfigurationCdiExtension implements Extension {
                                                                qualifiers.add(a);
                                                            }
                                                        }
-                                                       qualifiers.add(Default.Literal.INSTANCE);
+                                                       //qualifiers.add(Default.Literal.INSTANCE);
                                                        return qualifiers;
                                                    }
                                                },
@@ -153,12 +164,14 @@ public class AxonConfigurationCdiExtension implements Extension {
                         .createCreationalContext(configurerInstance.getBean()));
         Configurer configurer = AxonConfigurationInitializer.initializeAxonConfigurer();
 
-        configurer = AxonConfigurationInitializer.registerAnnotatedAggregates(bm, configurer, annotatedAggregateInstanceList, annotatedAggregateRepoInstanceList);
+        AxonConfigurationInitializer.registerAnnotatedAggregates(bm, configurer, annotatedAggregateInstanceList, annotatedAggregateRepoInstanceList);
+
+        configureSerializers(configurer, bm);
 
         try{
             configurer = (Configurer) configurerInstance.getMethod().invoke(inst, configurer);
         } catch (Exception e) {
-            log.warning(e.getMessage());
+            log.error(e.getMessage());
         }
 
         this.config = configurer.buildConfiguration();
@@ -217,6 +230,20 @@ public class AxonConfigurationCdiExtension implements Extension {
         }
         */
 
+    }
+
+    private Configurer configureSerializers(Configurer configurer, BeanManager bm) {
+        // todo move to after bean discovery so you can add the serializer beans
+        /*Serializer defaultSerializer = serializerProperties.getSerializer();
+
+
+        configurer.configureSerializer(c -> defaultSerializer);
+        configurer.configureEventSerializer(c -> c);
+        configurer.configureMessageSerializer(c -> c);
+
+         */
+
+        return configurer;
     }
 
     Configuration getConfig() {

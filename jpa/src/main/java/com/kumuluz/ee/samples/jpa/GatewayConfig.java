@@ -12,6 +12,8 @@ import org.axonframework.eventsourcing.EventSourcingRepository;
 import org.axonframework.modelling.command.Repository;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
+import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,7 +21,16 @@ import java.util.concurrent.ScheduledExecutorService;
 @ApplicationScoped
 public class GatewayConfig {
 
+    @Produces
+    public String getString() {
+        String a = "aaaa";
+        String b = "bbbbb";
+
+        return a + b;
+    }
+
     @AxonConfiguration
+    @Default
     @Named("myCommandGateway")
     public CommandGateway myCommandGateway(Configuration config) {
         final ScheduledExecutorService scheduler =
