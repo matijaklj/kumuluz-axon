@@ -1,24 +1,15 @@
 package com.kumuluz.ee.samples.kumuluzee.axon;
 
-import com.kumuluz.ee.samples.kumuluzee.axon.properties.SerializerProperties;
-import org.axonframework.common.Registration;
-import org.axonframework.common.jpa.EntityManagerProvider;
+import com.kumuluz.ee.samples.kumuluzee.axon.stereotype.Aggregate;
+import com.kumuluz.ee.samples.kumuluzee.axon.stereotype.AggregateRepository;
 import org.axonframework.config.AggregateConfigurer;
-import org.axonframework.config.Configuration;
 import org.axonframework.config.Configurer;
 import org.axonframework.config.DefaultConfigurer;
-import org.axonframework.eventhandling.EventBus;
-import org.axonframework.eventhandling.EventMessage;
-import org.axonframework.messaging.MessageDispatchInterceptor;
-import org.axonframework.modelling.command.GenericJpaRepository;
 import org.axonframework.modelling.command.Repository;
 
 import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class AxonConfigurationInitializer {
 

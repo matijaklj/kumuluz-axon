@@ -8,7 +8,7 @@
     <artifactId>kumuluzee-samples</artifactId>
     <version>3.9.0-SNAPSHOT</version>
     <modules>
-        <module>jpa</module>
+        <module>example</module>
         <module>kumuluzee.axon</module>
     </modules>
 

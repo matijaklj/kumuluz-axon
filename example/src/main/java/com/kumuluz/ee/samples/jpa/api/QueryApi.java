@@ -1,10 +1,6 @@
 package com.kumuluz.ee.samples.jpa.api;
 
-import com.kumuluz.ee.samples.jpa.AxonConfig;
-import org.axonframework.messaging.responsetypes.ResponseTypes;
-import org.axonframework.queryhandling.GenericQueryMessage;
-import org.axonframework.queryhandling.QueryGateway;
-import org.axonframework.queryhandling.SubscriptionQueryResult;
+import org.axonframework.config.Configuration;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -19,8 +15,6 @@ import java.util.concurrent.ExecutionException;
 @Path("queries")
 public class QueryApi {
 
-    @Inject
-    private QueryGateway queryGateway;
 
     @GET
     @Path("{giftcardId}")
@@ -38,9 +32,10 @@ public class QueryApi {
         //GenericQueryMessage<FindGiftCardQry, GiftCardRecord> query =
         //        new GenericQueryMessage<>(q, ResponseTypes.instanceOf(GiftCardRecord.class));
         // (2) send a query message and print query response
-        GiftCardRecord result = this.queryGateway.query(q, GiftCardRecord.class).get();
+        //GiftCardRecord result = this.configuration.queryGateway().query(q, GiftCardRecord.class).get();
 
-        return Response.ok(result).build();
+        //return Response.ok(result).build();
+        return null;
     }
 
 

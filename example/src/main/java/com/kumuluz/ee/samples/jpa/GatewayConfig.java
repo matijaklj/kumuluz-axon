@@ -1,19 +1,21 @@
 package com.kumuluz.ee.samples.jpa;
 
 import com.kumuluz.ee.samples.jpa.command.GiftCard;
-import com.kumuluz.ee.samples.kumuluzee.axon.AggregateRepository;
 import com.kumuluz.ee.samples.kumuluzee.axon.AxonConfiguration;
+import com.kumuluz.ee.samples.kumuluzee.axon.stereotype.AggregateRepository;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.commandhandling.gateway.CommandGatewayFactory;
 import org.axonframework.commandhandling.gateway.DefaultCommandGateway;
 import org.axonframework.commandhandling.gateway.IntervalRetryScheduler;
 import org.axonframework.config.Configuration;
+import org.axonframework.config.Configurer;
 import org.axonframework.eventsourcing.EventSourcingRepository;
 import org.axonframework.modelling.command.Repository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,13 +24,31 @@ import java.util.concurrent.ScheduledExecutorService;
 public class GatewayConfig {
 
     @Produces
-    public String getString() {
-        String a = "aaaa";
-        String b = "bbbbb";
+    @ApplicationScoped
+    public CommandGateway myCommandGateway(Configurer configurer) {
+        Configuration configuration = configurer.buildConfiguration();
+        final ScheduledExecutorService scheduler =
+                Executors.newScheduledThreadPool(1);
 
-        return a + b;
+        CommandGatewayFactory factory = CommandGatewayFactory.builder()
+                .commandBus(configuration.commandBus())
+                .retryScheduler(
+                        IntervalRetryScheduler.builder().retryExecutor(scheduler).retryInterval(11).build())
+                .build();
+
+        // note that the commandBus can be obtained from the Configuration
+        // object returned on `configurer.initialize()`.
+        return factory.createGateway(MyCommandGateway.class);
+
+        /*return DefaultCommandGateway.builder()
+                .commandBus(config.commandBus())
+                //.dispatchInterceptors()
+                //.retryScheduler(...)
+                .build();
+
+         */
     }
-
+/*
     @AxonConfiguration
     @Default
     @Named("myCommandGateway")
@@ -72,5 +92,8 @@ public class GatewayConfig {
                 .eventStore(configuration.eventStore())
                 .build();
     }
+
+ */
+
 }
 

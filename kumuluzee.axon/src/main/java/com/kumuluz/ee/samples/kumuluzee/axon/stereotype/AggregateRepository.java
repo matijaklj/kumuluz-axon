@@ -1,4 +1,4 @@
-package com.kumuluz.ee.samples.kumuluzee.axon;
+package com.kumuluz.ee.samples.kumuluzee.axon.stereotype;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

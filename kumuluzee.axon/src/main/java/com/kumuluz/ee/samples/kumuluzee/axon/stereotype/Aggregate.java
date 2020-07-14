@@ -1,4 +1,4 @@
-package com.kumuluz.ee.samples.kumuluzee.axon;
+package com.kumuluz.ee.samples.kumuluzee.axon.stereotype;
 
 
 import org.axonframework.modelling.command.AggregateRoot;

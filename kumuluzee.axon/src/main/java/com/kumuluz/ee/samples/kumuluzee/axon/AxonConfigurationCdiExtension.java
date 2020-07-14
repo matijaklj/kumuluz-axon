@@ -1,20 +1,20 @@
 package com.kumuluz.ee.samples.kumuluzee.axon;
 
+import com.kumuluz.ee.configuration.cdi.ConfigValue;
 import com.kumuluz.ee.samples.kumuluzee.axon.properties.SerializerProperties;
-import com.kumuluz.ee.samples.kumuluzee.axon.util.TypesBeanAttributes;
+import com.kumuluz.ee.samples.kumuluzee.axon.stereotype.Aggregate;
+import com.kumuluz.ee.samples.kumuluzee.axon.stereotype.AggregateRepository;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.config.Configuration;
 import org.axonframework.config.Configurer;
 import org.axonframework.config.DefaultConfigurer;
 import org.axonframework.eventhandling.gateway.EventGateway;
 import org.axonframework.queryhandling.QueryGateway;
-import org.axonframework.serialization.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.context.Initialized;
+import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Default;
@@ -32,205 +32,279 @@ public class AxonConfigurationCdiExtension implements Extension {
 
     private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    private Producer<Configurer> configurerProducer;
+    private Producer<CommandGateway> commandGatewayProducer;
+    //private List<Producer<CommandGateway>> commandGatewayProducers = new ArrayList<>();
+
     @Inject
     private SerializerProperties serializerProperties;
 
-    List<AnnotatedInstance<Aggregate>> annotatedAggregateInstanceList = new ArrayList<>();
-    List<AnnotatedInstance<AggregateRepository>> annotatedAggregateRepoInstanceList = new ArrayList<>();
+    <T> void processConfigurerProducer(
+            @Observes final ProcessProducer<T, Configurer> processProducer) {
 
-    private AnnotatedInstance<AxonConfiguration> configurerInstance;
+        log.debug("Producer for Configurer found: {}.", processProducer.getProducer());
 
-    List<AnnotatedInstance<AxonConfiguration>> commandGatewayInstances = new ArrayList<>();
-    private AnnotatedInstance<AxonConfiguration> commandGatewayInstance;
-    private AnnotatedInstance<AxonConfiguration> queryGatewayInstance;
-    private AnnotatedInstance<AxonConfiguration> eventGatewayInstance;
-
-    private Configuration config;
-    private CommandGateway commandGateway;
-    private EventGateway eventGateway;
-    private QueryGateway queryGateway;
-
-    //AnnotatedType<AxonConfig> annotatedType;
-
-    public <X> void processAxonConfigurationAnnotations(@Observes ProcessBean<X> pat) {
-        for (Method method : pat.getBean().getBeanClass().getMethods()) {
-            if (method.getAnnotation(AxonConfiguration.class) != null) {
-
-                AxonConfiguration annotation = method.getAnnotation(AxonConfiguration.class);
-
-                if (method.getReturnType().equals(Configurer.class)) {
-                    if (this.configurerInstance != null)
-                        log.error("only one method can be annotated for axon configuration");
-
-                    this.configurerInstance = new AnnotatedInstance<>(pat.getBean(), method, annotation);
-                }
-
-                if (method.getReturnType().equals(CommandGateway.class)) {
-                    if (this.commandGatewayInstance != null)
-                        log.error("only one method can be annotated for axon CommandGateway");
-
-                    this.commandGatewayInstances.add(new AnnotatedInstance<>(pat.getBean(), method, annotation));
-                    //this.commandGatewayInstance = new AnnotatedInstance<>(pat.getBean(), method, annotation);
-                }
-
-                if (method.getReturnType().equals(EventGateway.class)) {
-                    if (this.eventGatewayInstance != null)
-                        log.error("only one method can be annotated for axon EventGateway");
-
-                    this.eventGatewayInstance = new AnnotatedInstance<>(pat.getBean(), method, annotation);
-                }
-
-
-                if (method.getReturnType().equals(QueryGateway.class)) {
-                    if (this.queryGatewayInstance != null)
-                        log.error("only one method can be annotated for axon QueryGateway");
-
-                    this.queryGatewayInstance = new AnnotatedInstance<>(pat.getBean(), method, annotation);
-                }
-
-                /*
-                if (isAnnotatedTypeAlreadyPresent) {
-                    log.warning("Annotated method @axonConfiguration for type " + pat.getBean().getBeanClass() + " already exists.");
-
-                    // trow error
-                }
-                instances.add(new AnnotatedInstance<>(pat.getBean(), method, annotation));
-                 */
-            } else if (method.getAnnotation(AggregateRepository.class) != null) {
-                AggregateRepository annotation = method.getAnnotation(AggregateRepository.class);
-
-                // todo check if method return type is of type Repository
-                // method.getReturnType()
-                // todo check the parameter of the method is configuration
-                // method.getParameterTypes()
-
-                // else throw error wrongly annotated aggregateRepository method
-                annotatedAggregateRepoInstanceList.add(
-                        new AnnotatedInstance<AggregateRepository>(pat.getBean(), method, annotation)
-                );
-            }
+        if (this.configurerProducer != null) {
+            log.error("There can be only one Configurer producer!");
         }
-
-        // find annotated aggregates
-        if ( pat.getBean().getBeanClass().getAnnotation(Aggregate.class) != null) {
-            Aggregate annotation = pat.getBean().getBeanClass().getAnnotation(Aggregate.class);
-            this.annotatedAggregateInstanceList.add(new AnnotatedInstance<>(pat.getBean(), pat.getBean().getBeanClass(), annotation));
-        }
+        this.configurerProducer = processProducer.getProducer();
     }
 
-    public void createProducerBeans(@Observes AfterBeanDiscovery event, BeanManager bm) {
-        // todo here create bean for any annotated gateway method
-        // command gateway
-        if (this.commandGatewayInstances.isEmpty()) {
-            // todo create a default bean from config.getCommandGateway
-            String s = "";
-        } else
-            for (AnnotatedInstance<AxonConfiguration> cmdGatewayInst : this.commandGatewayInstances) {
-                final AnnotatedType<?> thisType = bm.createAnnotatedType(cmdGatewayInst.getBean().getBeanClass());
-                final AnnotatedMethod<?> producerMethod = thisType.getMethods().stream()
-                        .filter(m -> m.getJavaMember().getName().equals(cmdGatewayInst.getMethod().getName()))
-                        .findFirst()
-                        .get();
+    <T> void processCommandGatewayProducer(
+            @Observes final ProcessProducer<T, CommandGateway> processProducer) {
 
-                final BeanAttributes<?> producerAttributes = bm.createBeanAttributes(producerMethod);
+        log.debug("Producer for CommandGateway found: {}.", processProducer.getProducer());
 
-                log.debug("Registering producer bean for {}", cmdGatewayInst.getMethod().getName());
-
-                final Bean<?> bean =
-                        bm.createBean(new DelegatingBeanAttributes<Object>(producerAttributes) {
-                                                   @Override
-                                                   public final Set<Annotation> getQualifiers() {
-                                                       final Set<Annotation> qualifiers = new HashSet<>();
-                                                       for (Annotation a : cmdGatewayInst.getMethod().getDeclaredAnnotations()) {
-                                                           if (a.annotationType().isAnnotationPresent(Qualifier.class)) {
-                                                               qualifiers.add(a);
-                                                           }
-                                                       }
-                                                       //qualifiers.add(Default.Literal.INSTANCE);
-                                                       return qualifiers;
-                                                   }
-                                               },
-                                cmdGatewayInst.getBean().getBeanClass(),
-                                bm.getProducerFactory(producerMethod, cmdGatewayInst.getBean()));
-
-                event.addBean(bean);
-            }
+        this.commandGatewayProducer = processProducer.getProducer();
+        //this.commandGatewayProducers.add(processProducer.getProducer());
     }
 
-    public void addAxonConfiguration(@Observes AfterDeploymentValidation event, BeanManager bm) {
-        Set<Bean<?>> allBeans = bm.getBeans(Object.class, new AnnotationLiteral<Any>() {});
+    public void afterBeanDiscovery(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager bm) {
 
-        Object inst = bm.getReference(configurerInstance.getBean(), configurerInstance.getMethod().getDeclaringClass(), bm
-                        .createCreationalContext(configurerInstance.getBean()));
-        Configurer configurer = AxonConfigurationInitializer.initializeAxonConfigurer();
+        Configurer configurer;
 
-        AxonConfigurationInitializer.registerAnnotatedAggregates(bm, configurer, annotatedAggregateInstanceList, annotatedAggregateRepoInstanceList);
-
-        configureSerializers(configurer, bm);
-
-        try{
-            configurer = (Configurer) configurerInstance.getMethod().invoke(inst, configurer);
-        } catch (Exception e) {
-            log.error(e.getMessage());
+        if (this.configurerProducer != null) {
+            configurer = produce(bm, this.configurerProducer);
+        } else {
+            log.info("No configurer producer defined, using default configuration.");
+            configurer = DefaultConfigurer.defaultConfiguration();
         }
 
-        this.config = configurer.buildConfiguration();
+        /*AxonConfiguration axonConfiguration = new AxonConfiguration(configurer);
 
-
-        // old way of creating gateways
-
-        /*if (this.commandGatewayInstance != null) {
-            Object commandGatewayInst = bm.getReference(commandGatewayInstance.getBean(), commandGatewayInstance.getMethod().getDeclaringClass(), bm
-                    .createCreationalContext(commandGatewayInstance.getBean()));
-
-            try {
-                this.commandGateway = (CommandGateway) commandGatewayInstance.getMethod().invoke(commandGatewayInst, this.config);
-            } catch (Exception e) {
-                log.warning(e.getMessage());
+        afterBeanDiscovery.addBean(new Bean<AxonConfiguration>() {
+            @Override
+            public Class<AxonConfiguration> getBeanClass() {
+                return AxonConfiguration.class;
             }
+
+            @Override
+            public Set<InjectionPoint> getInjectionPoints() {
+                return Collections.emptySet();
+            }
+
+            @Override
+            public boolean isNullable() {
+                return false;
+            }
+
+            @Override
+            public AxonConfiguration create(final CreationalContext<AxonConfiguration> context) {
+                return axonConfiguration;
+            }
+
+            @Override
+            public void destroy(AxonConfiguration instance, final CreationalContext<AxonConfiguration> context) {
+                instance.shutdown();
+                instance = null;
+                context.release();
+            }
+
+            @Override
+            public Set<Type> getTypes() {
+                final Set<Type> types = new HashSet<>();
+
+                types.add(AxonConfiguration.class);
+                types.add(Object.class);
+
+                return types;
+            }
+
+            @Override
+            public Set<Annotation> getQualifiers() {
+                final Set<Annotation> qualifiers = new HashSet<>();
+
+                qualifiers.add(new AnnotationLiteral<Default>() {
+                });
+                qualifiers.add(new AnnotationLiteral<Any>() {
+                });
+
+                return qualifiers;
+            }
+
+            @Override
+            public Class<? extends Annotation> getScope() {
+                return ApplicationScoped.class;
+            }
+
+            @Override
+            public String getName() {
+                return AxonConfiguration.class.getSimpleName();
+            }
+
+            @Override
+            public Set<Class<? extends Annotation>> getStereotypes() {
+                return Collections.emptySet();
+            }
+
+            @Override
+            public boolean isAlternative() {
+                return false;
+            }
+
+        });
+
+         */
+
+        CommandGateway commandGateway = null;
+        if (this.commandGatewayProducer != null) {
+            CommandGateway cmd = produce(bm, this.commandGatewayProducer);
+            configurer.registerComponent(CommandGateway.class, c -> cmd);
+            commandGateway = cmd;
         }
 
-        if (this.eventGatewayInstance != null) {
-            Object eventGatewayInst = bm.getReference(eventGatewayInstance.getBean(), eventGatewayInstance.getMethod().getDeclaringClass(), bm
-                    .createCreationalContext(eventGatewayInstance.getBean()));
+        Configuration configuration = configurer.start();
 
-            try {
-                this.eventGateway = (EventGateway) eventGatewayInstance.getMethod().invoke(eventGatewayInst, this.config);
-            } catch (Exception e) {
-                log.warning(e.getMessage());
-            }
-        }
+        if (commandGateway == null) {
+            commandGateway = configuration.commandGateway();
 
-        if (this.queryGatewayInstance != null) {
-            Object queryGatewayInst = bm.getReference(queryGatewayInstance.getBean(), queryGatewayInstance.getMethod().getDeclaringClass(), bm
-                    .createCreationalContext(queryGatewayInstance.getBean()));
+            CommandGateway cmdG = commandGateway;
 
-            try {
-                this.queryGateway = (QueryGateway) queryGatewayInstance.getMethod().invoke(queryGatewayInst, this.config);
-            } catch (Exception e) {
-                log.warning(e.getMessage());
-            }
-        }*/
-
-        this.config.start();
-
-        /*for (AnnotatedMethod<? super AxonConfig> m : annotatedType.getMethods()) {
-            if (m.getJavaMember().getName().equals(AxonConfig.CONFIGURATION_SET_METHOD_NAME)) {
-                Bean<?> b = bm.getBeans("axonConfigurationInitializer").iterator().next();
-                Object instance = bm.getReference(b, m.getJavaMember().getDeclaringClass(), bm
-                        .createCreationalContext(b));
-
-                try {
-                    m.getJavaMember().invoke(instance, this.config);
-                } catch (Exception e) {
-
+            afterBeanDiscovery.addBean(new Bean<CommandGateway>() {
+                @Override
+                public Class<CommandGateway> getBeanClass() {
+                    return CommandGateway.class;
                 }
-                break;
-            }
+
+                @Override
+                public Set<InjectionPoint> getInjectionPoints() {
+                    return Collections.emptySet();
+                }
+
+                @Override
+                public boolean isNullable() {
+                    return false;
+                }
+
+                @Override
+                public CommandGateway create(final CreationalContext<CommandGateway> context) {
+                    return cmdG;
+                }
+
+                @Override
+                public void destroy(CommandGateway instance, final CreationalContext<CommandGateway> context) {
+                    instance = null;
+                    context.release();
+                }
+
+                @Override
+                public Set<Type> getTypes() {
+                    final Set<Type> types = new HashSet<>();
+
+                    types.add(CommandGateway.class);
+                    types.add(Object.class);
+
+                    return types;
+                }
+
+                @Override
+                public Set<Annotation> getQualifiers() {
+                    final Set<Annotation> qualifiers = new HashSet<>();
+
+                    qualifiers.add(new AnnotationLiteral<Default>() {
+                    });
+                    qualifiers.add(new AnnotationLiteral<Any>() {
+                    });
+
+                    return qualifiers;
+                }
+
+                @Override
+                public Class<? extends Annotation> getScope() {
+                    return ApplicationScoped.class;
+                }
+
+                @Override
+                public String getName() {
+                    return CommandGateway.class.getSimpleName();
+                }
+
+                @Override
+                public Set<Class<? extends Annotation>> getStereotypes() {
+                    return Collections.emptySet();
+                }
+
+                @Override
+                public boolean isAlternative() {
+                    return false;
+                }
+            } );
         }
-        */
+
+        afterBeanDiscovery.addBean(new Bean<Configuration>() {
+            @Override
+            public Class<Configuration> getBeanClass() {
+                return Configuration.class;
+            }
+
+            @Override
+            public Set<InjectionPoint> getInjectionPoints() {
+                return Collections.emptySet();
+            }
+
+            @Override
+            public boolean isNullable() {
+                return false;
+            }
+
+            @Override
+            public Configuration create(final CreationalContext<Configuration> context) {
+                return configuration;
+            }
+
+            @Override
+            public void destroy(Configuration instance, final CreationalContext<Configuration> context) {
+                instance.shutdown();
+                instance = null;
+                context.release();
+            }
+
+            @Override
+            public Set<Type> getTypes() {
+                final Set<Type> types = new HashSet<>();
+
+                types.add(Configuration.class);
+                types.add(Object.class);
+
+                return types;
+            }
+
+            @Override
+            public Set<Annotation> getQualifiers() {
+                final Set<Annotation> qualifiers = new HashSet<>();
+
+                qualifiers.add(new AnnotationLiteral<Default>() {
+                });
+                qualifiers.add(new AnnotationLiteral<Any>() {
+                });
+
+                return qualifiers;
+            }
+
+            @Override
+            public Class<? extends Annotation> getScope() {
+                return ApplicationScoped.class;
+            }
+
+            @Override
+            public String getName() {
+                return Configuration.class.getSimpleName();
+            }
+
+            @Override
+            public Set<Class<? extends Annotation>> getStereotypes() {
+                return Collections.emptySet();
+            }
+
+            @Override
+            public boolean isAlternative() {
+                return false;
+            }
+
+        });
 
     }
+
 
     private Configurer configureSerializers(Configurer configurer, BeanManager bm) {
         // todo move to after bean discovery so you can add the serializer beans
@@ -246,19 +320,17 @@ public class AxonConfigurationCdiExtension implements Extension {
         return configurer;
     }
 
-    Configuration getConfig() {
-        return this.config;
+    private <T> T produce(BeanManager beanManager, Producer<T> producer, Class<T> clazz) {
+        final Set<Bean<?>> beans = beanManager.getBeans(clazz);
+        final Bean<T> bean = (Bean<T>) beanManager.resolve(beans);
+
+        final CreationalContext<T> creationalContext = beanManager.createCreationalContext(bean);
+
+        return producer.produce(creationalContext);
     }
 
-    CommandGateway getCommandGateway() {
-        return this.commandGateway;
+    private <T> T produce(BeanManager beanManager, Producer<T> producer) {
+        return producer.produce(beanManager.createCreationalContext(null));
     }
 
-    EventGateway getEventGateway() {
-        return this.eventGateway;
-    }
-
-    QueryGateway getQueryGateway() {
-        return this.queryGateway;
-    }
 }
