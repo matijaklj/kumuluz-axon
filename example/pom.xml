@@ -3,8 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>kumuluzee-samples</artifactId>
-        <groupId>com.kumuluz.ee.samples</groupId>
+        <artifactId>kumuluzee-axon</artifactId>
+        <groupId>com.kumuluz.ee.axon</groupId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -13,6 +13,11 @@
 
     <name>KumuluzEE and Axon example</name>
     <description>KumuluzEE and Axon example</description>
+
+    <properties>
+        <arquillian.version>1.4.0.Final</arquillian.version>
+        <kumuluzee-arquillian-container.version>1.1.0</kumuluzee-arquillian-container.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -58,11 +63,6 @@
             <version>42.2.10</version>
         </dependency>
         <dependency>
-            <groupId>com.kumuluz.ee.streaming</groupId>
-            <artifactId>kumuluzee-streaming-kafka</artifactId>
-            <version>${kumuluzee-streaming-kafka.version}</version>
-        </dependency>
-        <dependency>
             <artifactId>kumuluzee-logs-log4j2</artifactId>
             <groupId>com.kumuluz.ee.logs</groupId>
             <version>${kumuluzee-logs.version}</version>
@@ -74,32 +74,31 @@
         </dependency>
 
 
-        <!-- axon dependecies
-
-        <dependency>
-            <groupId>org.axonframework</groupId>
-            <artifactId>axon-spring-boot-starter</artifactId>
-            <version>${axon.version}</version>
-        </dependency> -->
+        <!-- axon dependecies -->
 
         <dependency>
             <groupId>org.axonframework</groupId>
             <artifactId>axon-configuration</artifactId>
-            <version>4.2</version>
+            <version>4.3</version>
         </dependency>
         <dependency>
             <groupId>org.axonframework</groupId>
             <artifactId>axon-eventsourcing</artifactId>
-            <version>4.3.3</version>
+            <version>4.3</version>
         </dependency>
         <dependency>
             <groupId>org.axonframework</groupId>
             <artifactId>axon-modelling</artifactId>
-            <version>4.3.3</version>
+            <version>4.3</version>
         </dependency>
         <dependency>
             <groupId>org.axonframework</groupId>
             <artifactId>axon-messaging</artifactId>
+            <version>4.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-server-connector</artifactId>
             <version>4.3</version>
         </dependency>
 
@@ -141,10 +140,17 @@
         </dependency>
 
         <dependency>
-            <groupId>com.kumuluz.ee.samples</groupId>
+            <groupId>com.kumuluz.ee.axon</groupId>
             <artifactId>kumuluzee.axon</artifactId>
             <version>3.9.0-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

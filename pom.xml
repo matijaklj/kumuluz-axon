@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.kumuluz.ee.samples</groupId>
-    <artifactId>kumuluzee-samples</artifactId>
+    <groupId>com.kumuluz.ee.axon</groupId>
+    <artifactId>kumuluzee-axon</artifactId>
     <version>3.9.0-SNAPSHOT</version>
     <modules>
         <module>example</module>
@@ -14,35 +14,7 @@
 
     <packaging>pom</packaging>
 
-    <name>KumuluzEE samples</name>
-
-    <inceptionYear>2017</inceptionYear>
-    <description>
-        These samples demonstrate how to get started using KumuluzEE. They provide small, specific, working samples
-        that can be used as a reference for your own projects.
-    </description>
-
-    <url>https://ee.kumuluz.com</url>
-
-    <scm>
-        <connection>scm:git:git@github.com:kumuluz/kumuluzee-samples.git</connection>
-        <developerConnection>scm:git:git@github.com:kumuluz/kumuluzee-samples.git</developerConnection>
-        <url>git@github.com:kumuluz/kumuluzee-samples.git</url>
-    </scm>
-
-    <issueManagement>
-        <system>GitHub Issues</system>
-        <url>https://github.com/kumuluz/kumuluzee-samples/issues</url>
-    </issueManagement>
-
-    <developers>
-        <developer>
-            <name>Tilen Faganel</name>
-            <id>tfaga</id>
-            <email>tilen.faganel@me.com</email>
-            <url>https://github.com/TFaga</url>
-        </developer>
-    </developers>
+    <name>KumuluzEE Axon extension</name>
 
     <licenses>
         <license>
@@ -51,34 +23,6 @@
         </license>
     </licenses>
 
-    <repositories>
-        <repository>
-            <id>sonatype-snapshots</id>
-            <name>Sonatype Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>sonatype-snapshots</id>
-            <name>Sonatype Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -86,19 +30,54 @@
 
         <kumuluzee.version>3.8.0</kumuluzee.version>
 
-        <kumuluzee-streaming-kafka.version>1.2.0-SNAPSHOT</kumuluzee-streaming-kafka.version>
-        <kumuluzee-logs.version>1.3.0</kumuluzee-logs.version>
-
-        <kafka.version>2.0.0</kafka.version>
         <log4j-slf4j.version>2.8.1</log4j-slf4j.version>
 
+
+        <arquillian.version>1.4.0.Final</arquillian.version>
+        <kumuluzee-arquillian-container.version>1.1.0</kumuluzee-arquillian-container.version>
+        <testng.version>6.14.3</testng.version>
         <!-- axon prop -->
-        <kotlin.version>1.3.61</kotlin.version>
-        <axon.version>4.2</axon.version>
-        <vaadin.version>8.2.0</vaadin.version>
-        <lombok.version>1.18.0</lombok.version>
+        <axon.version>4.3</axon.version>
+        <kumuluzee-logs.version>1.4</kumuluzee-logs.version>
 
         <jaxb-api.version>2.3.0</jaxb-api.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.kumuluz.ee</groupId>
+                <artifactId>kumuluzee-bom</artifactId>
+                <version>${kumuluzee.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>${arquillian.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.kumuluz.ee.testing</groupId>
+                <artifactId>kumuluzee-arquillian-container</artifactId>
+                <version>${kumuluzee-arquillian-container.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <artifactId>kumuluzee-logs-log4j2</artifactId>
+                <groupId>com.kumuluz.ee.logs</groupId>
+                <version>${kumuluzee-logs.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

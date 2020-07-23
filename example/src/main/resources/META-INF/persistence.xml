@@ -4,11 +4,11 @@
              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
              http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
              version="2.1">
-    <persistence-unit name="kumuluzee-samples-jpa" transaction-type="JTA">
+    <persistence-unit name="giftcard" transaction-type="JTA">
 
-        <jta-data-source>jdbc/CustomersDS</jta-data-source>
+        <jta-data-source>jdbc/GiftCardDS</jta-data-source>
 
-        <class>com.kumuluz.ee.samples.jpa.Product</class>
+        <class>com.kumuluz.ee.axon.example.command.GiftCard</class>
 
         <properties>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>

@@ -1,0 +1,20 @@
+axon:
+  axonserver:
+    clientId: testClientId
+    componentName: testComponentName
+    suppressDownloadMessage: true
+    initialNrOfPermits: 111
+    nrOfNewPermits: 111
+    newPermitsThreshold: 111
+    event:
+      initialNrOfPermits: 222
+      nrOfNewPermits: 222
+      newPermitsThreshold: 222
+    command:
+      initialNrOfPermits: 333
+      nrOfNewPermits: 333
+      newPermitsThreshold: 333
+    query:
+      initialNrOfPermits: 444
+      nrOfNewPermits: 444
+      newPermitsThreshold: 444
