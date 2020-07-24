@@ -77,11 +77,13 @@ public class BeanWrapper<T> implements Bean<T>, PassivationCapable {
     public Set<Annotation> getQualifiers() {
         final Set<Annotation> qualifiers = new HashSet<>();
 
-        qualifiers.add(new AnnotationLiteral<Default>() {
-        });
-        qualifiers.add(new AnnotationLiteral<Any>() {
-        });
-        qualifiers.addAll(this.qualifiers);
+        if (this.qualifiers.isEmpty()) {
+            qualifiers.add(new AnnotationLiteral<Default>() {
+            });
+            qualifiers.add(new AnnotationLiteral<Any>() {
+            });
+        } else
+            qualifiers.addAll(this.qualifiers);
 
         return qualifiers;
     }

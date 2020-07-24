@@ -185,6 +185,12 @@ public class AxonConfigurationCdiExtension implements Extension {
         this.eventGatewayProducerBean = ppm.getBean();
     }
 
+    // todo remove test
+    public void processSerializerBeanAttributes(@Observes final ProcessBeanAttributes<Serializer> event) {
+        BeanAttributes<Serializer> ba = event.getBeanAttributes();
+
+    }
+
     <T> void processSerializerProducerMethod(
             @Observes final ProcessProducerMethod<Serializer, T> ppm) {
 
@@ -192,13 +198,20 @@ public class AxonConfigurationCdiExtension implements Extension {
             String name = ppm.getAnnotated().getAnnotation(Named.class).value();
 
             if (name.equals("eventSerializer")) {
-                log.fine("Producer method for Event Serializer found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
+                log.fine("Producer method for Event Serializer (named 'eventSerializer') found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
                 eventSerializerProducerBean = ppm.getBean();
             } else if (name.equals("messageSerializer")) {
-                log.fine("Producer method for Message Serializer found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
+                log.fine("Producer method for Message Serializer (named 'messageSerializer') found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
                 messageSerializerProducerBean = ppm.getBean();
+            } else if (name.equals("serializer")) {
+                log.fine("Producer method for General Serializer (named 'serializer') found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
+
+                if (this.serializerProducerBean != null) {
+                    log.severe("There can be only one General Serializer producer!");
+                }
+                this.serializerProducerBean = ppm.getBean();
             }
         } else {
             log.fine("Producer method for General Serializer found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
