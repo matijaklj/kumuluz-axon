@@ -1,6 +1,18 @@
 package com.kumuluz.ee.kumuluzee.axon.tests.test_classes;
 
-public class TestCommand {
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
+import java.io.Serializable;
+
+/**
+ * Test Command class
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
+public class TestCommand implements Serializable {
+
+    @TargetAggregateIdentifier
     private String id;
     private int testValue;
 

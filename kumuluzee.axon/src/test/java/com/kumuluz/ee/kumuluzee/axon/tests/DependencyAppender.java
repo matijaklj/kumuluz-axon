@@ -26,6 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Adds required dependencies to the deployments.
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class DependencyAppender implements MavenDependencyAppender {
 
     private static final ResourceBundle versionsBundle = ResourceBundle
@@ -42,6 +48,7 @@ public class DependencyAppender implements MavenDependencyAppender {
         libs.add("org.axonframework:axon-messaging:" + versionsBundle.getString("axon-version"));
 
         libs.add("org.axonframework:axon-server-connector:" + versionsBundle.getString("axon-version"));
+        libs.add("com.beust:jcommander:1.27");
 
         return libs;
     }

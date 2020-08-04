@@ -1,6 +1,5 @@
 package com.kumuluz.ee.kumuluzee.axon.tests;
 
-import com.kumuluz.ee.kumuluzee.axon.tests.beanz.ValueChanger;
 import org.axonframework.axonserver.connector.AxonServerConfiguration;
 import org.axonframework.config.Configuration;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -13,6 +12,12 @@ import org.testng.annotations.Test;
 
 import javax.inject.Inject;
 
+/**
+ * Axon Server configuration tests.
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class AxonServerConfigTest extends Arquillian {
 
     @Deployment

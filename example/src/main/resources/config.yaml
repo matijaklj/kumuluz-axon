@@ -1,14 +1,3 @@
-kumuluzee:
-  datasources:
-    - jndi-name: jdbc/GiftCardDS
-      connection-url: jdbc:postgresql://localhost:5432/giftcard
-      username: postgres
-      password: postgres
-      pool:
-        max-size: 20
 axon:
-  serializer:
-    general: todo
   axonserver:
-    clientId: pokazi kurca
-    componentName: kje je kurac?
+    componentName: kumuluz-axon-example

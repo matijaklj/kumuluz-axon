@@ -37,7 +37,6 @@ public class CommandApi {
     public Response issueGiftCard(IssueCmd issueCmd) {
         String cardId = UUID.randomUUID().toString();
 
-
         //MyCommandGateway myCommandGateway = (MyCommandGateway) this.commandGateway;
 
         CompletableFuture<String> futureResult = this.commandGateway

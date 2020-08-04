@@ -1,6 +1,5 @@
 package com.kumuluz.ee.kumuluzee.axon.tests;
 
-import com.kumuluz.ee.kumuluzee.axon.tests.test_classes.TestAggregate;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.config.Configuration;
@@ -17,10 +16,15 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+/**
+ * Axon default components injection tests.
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class DefaultComponentInjectionTest  extends Arquillian {
 
 

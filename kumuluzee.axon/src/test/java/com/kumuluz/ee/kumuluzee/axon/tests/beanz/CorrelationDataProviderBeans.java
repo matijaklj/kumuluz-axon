@@ -7,6 +7,12 @@ import org.axonframework.messaging.correlation.SimpleCorrelationDataProvider;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 
+/**
+ * Test Correlation data provider bean
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class CorrelationDataProviderBeans {
 
     @Produces

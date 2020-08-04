@@ -7,6 +7,12 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
+/**
+ * Test serializers bean
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class SerializersBean {
 
     @Produces

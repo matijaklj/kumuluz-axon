@@ -17,7 +17,12 @@ import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import java.io.File;
 
-@Test
+/**
+ * Axon Configuration injection test.
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class ConfigInjectionTest extends Arquillian {
 
     @Deployment

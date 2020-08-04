@@ -2,9 +2,7 @@ package com.kumuluz.ee.kumuluzee.axon.tests;
 
 import com.kumuluz.ee.kumuluzee.axon.tests.beanz.SerializersBean;
 import org.axonframework.config.Configuration;
-import org.axonframework.serialization.JavaSerializer;
 import org.axonframework.serialization.Serializer;
-import org.axonframework.serialization.json.JacksonSerializer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -16,6 +14,12 @@ import org.testng.annotations.Test;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+/**
+ * Axon Serializers tests.
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class SerializersTest extends Arquillian {
 
     @Deployment

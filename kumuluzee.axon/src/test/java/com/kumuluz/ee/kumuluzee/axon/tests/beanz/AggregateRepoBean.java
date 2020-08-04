@@ -9,6 +9,12 @@ import org.axonframework.modelling.command.Repository;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 
+/**
+ * Test Aggregate repository bean
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class AggregateRepoBean {
 
     @Produces

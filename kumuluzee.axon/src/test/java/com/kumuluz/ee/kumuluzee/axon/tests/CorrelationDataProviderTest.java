@@ -14,6 +14,12 @@ import org.testng.annotations.Test;
 import javax.inject.Inject;
 import java.util.List;
 
+/**
+ * Axon Correlation Data Provider test.
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class CorrelationDataProviderTest extends Arquillian {
 
     @Deployment

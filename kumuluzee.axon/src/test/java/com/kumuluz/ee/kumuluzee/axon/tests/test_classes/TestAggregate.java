@@ -6,6 +6,12 @@ import org.testng.annotations.Test;
 
 import javax.enterprise.context.ApplicationScoped;
 
+/**
+ * Test Aggregate class
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 @Aggregate
 @ApplicationScoped
 public class TestAggregate {

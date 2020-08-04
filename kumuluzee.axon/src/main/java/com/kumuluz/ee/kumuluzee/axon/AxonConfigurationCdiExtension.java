@@ -3,6 +3,7 @@ package com.kumuluz.ee.kumuluzee.axon;
 import com.kumuluz.ee.kumuluzee.axon.properties.AxonServerProperties;
 import com.kumuluz.ee.kumuluzee.axon.properties.SerializerProperties;
 import com.kumuluz.ee.kumuluzee.axon.stereotype.Aggregate;
+import org.axonframework.axonserver.connector.AxonServerException;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.common.jpa.EntityManagerProvider;
@@ -520,7 +521,6 @@ public class AxonConfigurationCdiExtension implements Extension {
 
     public void afterB(@Observes AfterDeploymentValidation event, BeanManager bm) {
         Configuration c = CDI.current().select(Configuration.class).get();
-
         c.start();
     }
 

@@ -1,133 +1,90 @@
-# KumuluzEE Samples
+# KumuluzEE Axon Extension
 
-> These samples demonstrate how to get started using KumuluzEE microservice framework. They provide small, specific, working samples that can be used as a reference for your own projects.
+KumuluzEE Axon Extension project allows an easy way to integrate the Axon framework for developing CQRS and DDD applications with the KumuluzEE microservice framework.
+The extension allows simple straightforward configuration of Axon components and offers annotation for auto-configuring aggregates and aggregates repositories. 
+Furthermore the extension automatically registers all annotated event, command and query handlers.
 
-These samples and quickstarts contain several working projects that demonstrate how to use [KumuluzEE](https://github.com/kumuluz/kumuluzee) microservices. They also serve as test projects for the framework itself.
-
-We recommend that you go through some of these samples to get a better understanding of the framework and use them as a reference for your own projects.
-
-Keep in mind that while projects containing multiple microservices are located in the same repository in order to simplify things, is is often recommended that you separate microservices by repository as well.
-
-Samples will be constantly added over time.
-
-## About
-
-The samples demonstrate many different use cases for using KumuluzEE to create self-sustaining microservices. The latest version of the samples will always use the latest version of the KumuluzEE framework. Therefore, it is recommended to use the latest version of the KumuluzEE framework for these samples. This way, you will also get all the latest features of the KumuluzEE. Refer to the usage section on how to build and run the samples.
-
-Some samples are tagged as well. The tags (eg. `v3.2.0`) will correspond to the KumuluzEE release version in order to easily access the desired version of the framework that is used in the examples. Tha `master` branch will always use the latest snapshot version of the framework and the latest samples.
-
-If you wish to use a snapshot version of KumuluzEE when running the samples, you must make sure you add the Sonatype snapshots repository to your `pom.xml`. The `master` branch already contains the repository as it's targeted against the snapshot version of the framework.
-
-```xml
-<repositories>
-    <repository>
-        <id>sonatype-snapshots</id>
-        <name>Sonatype Snapshots</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        <releases><enabled>false</enabled></releases>
-        <snapshots><enabled>true</enabled></snapshots>
-    </repository>
-</repositories>
-```
-
-The following samples are available (list might not be up-to-date; please refer to the actual list above):
-
-Tutorial:
-- Simple microservice tutorial (microservices-simple)
-- Cloud-native Java EE Microservices with KumuluzEE: REST service using config, discovery, security, metrics, logging and fault tolerance (tutorial-microservice-config-discovery-faulttolerance-logs-metrics-security)
-
-Java EE samples:
-- Bean Validation
-- JAX-RS
-- JAX-WS
-- JPA and CDI
-- JSF
-- JSP and Servlet
-- Servlet
-- Websocket
-- REST service over HTTPS
-- Logging with JUL and KumuluzEE
-
-KumuluzEE extensions - samples:
-- KumuluzEE Config
-- KumuluzEE Config with etcd
-- KumuluzEE Config with Consul
-- KumuluzEE MicroProfile Config
-- KumuluzEE Discovery with etcd
-- KumuluzEE Discovery with Consul
-- KumuluzEE Logs with Log4j2
-- KumuluzEE Logs with JUL
-- KumuluzEE REST
-- KumuluzEE Security with Keycloak for REST services
-- KumuluzEE Security with Keycloak for CDI
-- KumuluzEE Fault Tolerance with Hystrix
-- KumuluzEE Event Streaming with Kafka
-- KumuluzEE Cors
-- KumuluzEE Metrics
-- KumuluzEE Health
-- KumuluzEE AMQP
-- KumuluzEE Ethereum
-- KumuluzEE GraphQL
-- KumuluzEE gRPC
-- KumuluzEE OpenAPI
-- KumuluzEE OpenAPI MicroProfile
-- KumuluzEE Swagger
-- KumuluzEE OpenTracing
-- KumuluzEE Reactive
-- KumuluzEE Rest Client
-
-## Requirements
-
-In order to run these examples as they are intended, you will need the following:
-
-1. Java 8 (or newer), you can use any implementation:
-    * If you have installed Java, you can check the version by typing the following in a com.kumuluz.ee.samples.jpa.command line:
-        
-        ```
-        java -version
-        ```
-
-2. Maven 3.2.1 (or newer):
-    * If you have installed Maven, you can check the version by typing the following in a com.kumuluz.ee.samples.jpa.command line:
-        
-        ```
-        mvn -version
-        ```
-        
-3. Git:
-    * If you have installed Git, you can check the version by typing the following in a com.kumuluz.ee.samples.jpa.command line:
-    
-        ```
-        git --version
-        ```
-        
 ## Usage
 
-1. Clone the Git repository containing the examples:
+You can enable KumuluzEE Axon by adding the following dependency:
 
-    ```
-    git clone git@github.com:kumuluz/kumuluzee-samples.git
-    ```
-    
-2. Checkout the desired tagged version of the examples and the KumuluzEE framework (alternatively skip this step if you want the latest and greatest)
+```xml
+<dependency>
+    <groupId>com.kumuluz.ee.axon</groupId>
+    <artifactId>kumuluzee-axon</artifactId>
+    <version>${kumuluzee-axon.version}</version>
+</dependency>
+```
 
-    ```
-    cd kumuluzee-samples
-    git checkout v3.2.0
-    ```
-    
-To run a specific sample, please refer to the specific README file of the sample.
-Most of the time you either build and run it directly with a maven com.kumuluz.ee.samples.jpa.command or build Docker containers and run them.
+### Automatic Configuration
+The base Axon Framework is extremely powerful and flexible. What this extension does is to provide a number of sensible defaults for Axon applications while still allowing you reasonable configuration flexibility - including the ability to override defaults. As soon as you include the module in your project, you will be able to inject a number of Axon APIs into your code using CDI. These APIs represent the most important Axon Framework building blocks:
+
+* [CommandBus](http://www.axonframework.org/apidocs/4.3/org/axonframework/commandhandling/CommandBus.html)
+* [CommandGateway](http://www.axonframework.org/apidocs/4.3/org/axonframework/commandhandling/gateway/CommandGateway.html)
+* [EventBus](http://www.axonframework.org/apidocs/4.3/org/axonframework/eventhandling/EventBus.html)
+* [EventGateway](https://apidocs.axoniq.io/4.3/org/axonframework/eventhandling/gateway/EventGateway.html)
+* [QueryBus](http://www.axonframework.org/apidocs/4.3/org/axonframework/queryhandling/QueryBus.html)
+* [QueryGateway](http://www.axonframework.org/apidocs/4.3/org/axonframework/queryhandling/QueryGateway.html)
+* [Serializer](http://www.axonframework.org/apidocs/4.3/org/axonframework/serialization/Serializer.html)
+* [Configuration](http://www.axonframework.org/apidocs/4.3/org/axonframework/config/Configuration.html)
+
+### Override configurations
+You can provide configuration overrides for the following Axon artifacts by creating CDI producers for them:
+
+* [EntityManagerProvider](http://www.axonframework.org/apidocs/4.3/org/axonframework/common/jpa/EntityManagerProvider.html)
+* [EventStorageEngine](http://www.axonframework.org/apidocs/4.3/org/axonframework/eventsourcing/eventstore/EventStorageEngine.html)
+* [TransactionManager](http://www.axonframework.org/apidocs/4.3/org/axonframework/common/transaction/TransactionManager.html) (in case of JTA, make sure this is a transaction manager that will work with JTA. For your convenience, we have provided a JtaTransactionManager that should work in most CMT and BMT situations.)
+* [EventBus](http://www.axonframework.org/apidocs/4.3/org/axonframework/eventhandling/EventBus.html)
+* [EventGateway](https://apidocs.axoniq.io/4.3/org/axonframework/eventhandling/gateway/EventGateway.html)
+* [CommandBus](http://www.axonframework.org/apidocs/4.3/org/axonframework/commandhandling/CommandBus.html)
+* [QueryBus](http://www.axonframework.org/apidocs/4.3/org/axonframework/queryhandling/QueryBus.html)
+* [CommandGateway](http://www.axonframework.org/apidocs/4.3/org/axonframework/commandhandling/gateway/CommandGateway.html)
+* [QueryGateway](http://www.axonframework.org/apidocs/4.3/org/axonframework/queryhandling/QueryGateway.html)
+* [TokenStore](http://www.axonframework.org/apidocs/4.3/org/axonframework/eventhandling/tokenstore/TokenStore.html)
+* [Serializer](http://www.axonframework.org/apidocs/4.3/org/axonframework/serialization/Serializer.html) (both a global serializer and an event serializer may be overriden. To override an event serializer, please name the producer "eventSerializer" via the @Named annotation. It is purely optional, but you can use @Named to name your global serializer "serializer". If no @Named annotation is present, the serializer is assumed to be global)
+* [ErrorHandler](http://www.axonframework.org/apidocs/4.3/org/axonframework/eventhandling/ErrorHandler.html)
+* [ListenerInvocationErrorHandler](https://github.com/AxonFramework/AxonFramework/blob/master/core/src/main/java/org/axonframework/eventhandling/ListenerInvocationErrorHandler.java)
+* [CorrelationDataProvider](https://github.com/AxonFramework/AxonFramework/blob/master/core/src/main/java/org/axonframework/messaging/correlation/CorrelationDataProvider.java)
+* [EventUpcaster](http://www.axonframework.org/apidocs/4.3/org/axonframework/serialization/upcasting/event/EventUpcaster.html)
+* [Configurer](http://www.axonframework.org/apidocs/4.3/org/axonframework/config/Configurer.html)
+* TODO [ModuleConfiguration](http://www.axonframework.org/apidocs/4.3/org/axonframework/config/ModuleConfiguration.html))
+
+## Running Axon Server
+
+By default the Axon Framework is configured to expect a running Axon Server instance, and it will complain if the server is not found. To run Axon Server, you'll need a Java runtime (JRE versions 8 through 10 are currently supported). You can run it locally, in a Docker container (including Kubernetes or even Mini-kube), or on a separate server.
+
+
+To run Axon Server in Docker you can use the image provided on Docker Hub:
+
+```
+$ docker run -d --name my-axon-server -p 8024:8024 -p 8124:8124 axoniq/axonserver
+...some container id...
+$
+```
+
+*WARNING* This is not a supported image for production purposes. Please use with caution.
+
+If you want to run the clients in Docker containers as well, and are not using something like Kubernetes, use the "`--hostname`" option of the `docker` command to set a useful name like "axonserver", and pass the `AXONSERVER_HOSTNAME` environment variable to adjust the properties accordingly:
+
+```
+$ docker run -d --name my-axon-server -p 8024:8024 -p 8124:8124 --hostname axonserver -e AXONSERVER_HOSTNAME=axonserver axoniq/axonserver
+```
+
+When you start the client containers, you can now use "`--link axonserver`" to provide them with the correct DNS entry. The Axon Server-connector looks at the "`axon.axonserver.servers`" property to determine where Axon Server lives, so don't forget to set it to "`axonserver`".
+
+### Disabling extension
+
+The extension can be disabled by setting the `kumuluzee.axon.enabled` configuration property to `false`.
 
 ## Changelog
 
-Recent changes can be viewed on Github on the [Releases Page](https://github.com/kumuluz/kumuluzee-samples/releases)
+Recent changes can be viewed on Github on the [Releases Page](https://github.com/kumuluz/kumuluzee-axon/releases)
 
 ## Contribute
 
-See the [contributing docs](https://github.com/kumuluz/kumuluzee-samples/blob/master/CONTRIBUTING.md)
+See the [contributing docs](https://github.com/kumuluz/kumuluzee-axon/blob/master/CONTRIBUTING.md)
 
-When submitting an issue, please follow the [guidelines](https://github.com/kumuluz/kumuluzee-samples/blob/master/CONTRIBUTING.md#bugs).
+When submitting an issue, please follow the [guidelines](https://github.com/kumuluz/kumuluzee-axon/blob/master/CONTRIBUTING.md#bugs).
 
 Issues related to KumuluzEE itself should be submitted at https://github.com/kumuluz/kumuluzee/issues.
 

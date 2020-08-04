@@ -1,5 +1,8 @@
 package com.kumuluz.ee.kumuluzee.axon.tests;
 
+import com.kumuluz.ee.kumuluzee.axon.tests.beanz.CommandHandlerBean;
+import com.kumuluz.ee.kumuluzee.axon.tests.beanz.EventHandlerBean;
+import com.kumuluz.ee.kumuluzee.axon.tests.beanz.QueryHandlerBean;
 import com.kumuluz.ee.kumuluzee.axon.tests.beanz.ValueChanger;
 import com.kumuluz.ee.kumuluzee.axon.tests.test_classes.*;
 import org.axonframework.commandhandling.gateway.CommandGateway;
@@ -7,7 +10,6 @@ import org.axonframework.eventhandling.gateway.EventGateway;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.GenericQueryMessage;
 import org.axonframework.queryhandling.QueryBus;
-import org.axonframework.queryhandling.QueryGateway;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -17,18 +19,26 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
+/**
+ * Axon message handling tests.
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class MessageHandlingTest extends Arquillian {
+
+    private static final Logger log = Logger.getLogger(MessageHandlingTest.class.getName());
 
     @Deployment
     public static JavaArchive createDeployment() {
 
         return ShrinkWrap.create(JavaArchive.class)
-                .addClass(TestEventHandler.class)
-                .addClass(TestQueryHandler.class)
-                .addClass(TestCommandHandler.class)
+                .addClass(EventHandlerBean.class)
+                .addClass(QueryHandlerBean.class)
+                .addClass(CommandHandlerBean.class)
                 .addClass(TestEvent.class)
                 .addClass(TestCommand.class)
                 .addClass(TestQuery.class)
@@ -53,8 +63,17 @@ public class MessageHandlingTest extends Arquillian {
         valueChanger.setValue(0);
         Assert.assertEquals(valueChanger.getValue(), 0);
 
-        for (int i = 1; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             eventGateway.publish(new TestEvent("test-event", i));
+
+            try
+            {
+                Thread.sleep(100);
+            }
+            catch(InterruptedException ex)
+            {
+                Thread.currentThread().interrupt();
+            }
 
             Assert.assertEquals(valueChanger.getValue(), i);
         }
@@ -65,11 +84,10 @@ public class MessageHandlingTest extends Arquillian {
         int val = 2;
         GenericQueryMessage<Integer, Integer> query =
                 new GenericQueryMessage<>(val, ResponseTypes.instanceOf(Integer.class));
-        // 2. send a query message and print query response
+
         queryBus.query(query).thenAccept(res ->
-        {
-            Assert.assertEquals((int)res.getPayload(), val*2);
-        });
+            Assert.assertEquals((int)res.getPayload(), val*2)
+        );
     }
 
     @Test
@@ -85,6 +103,7 @@ public class MessageHandlingTest extends Arquillian {
             futureResult.get();
             Assert.assertEquals(valueChanger.getValue(), val);
         } catch (Exception e) {
+            log.warning(e.getMessage());
             Assert.fail();
         }
 

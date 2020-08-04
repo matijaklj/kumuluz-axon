@@ -1,6 +1,15 @@
 package com.kumuluz.ee.kumuluzee.axon.tests.test_classes;
 
-public class TestEvent {
+import java.io.Serializable;
+
+/**
+ * Test Event class
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
+public class TestEvent implements Serializable {
+
     private String id;
     private int testValue;
 

@@ -27,5 +27,5 @@ import javax.ws.rs.core.Application;
  * @author Matija Kljun
  */
 @ApplicationPath("v1")
-public class TestApplication extends Application {
+public class ExampleApplication extends Application {
 }

@@ -7,6 +7,12 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 
+/**
+ * Packages KumuluzEE Axon library as a ShrinkWrap archive and adds it to deployments.
+ *
+ * @author Matija
+ * @since 0.0.1
+ */
 public class AxonConfigurationLibraryAppender extends CachedAuxilliaryArchiveAppender {
 
     @Override

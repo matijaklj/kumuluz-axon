@@ -1,12 +1,9 @@
 package com.kumuluz.ee.axon.example;
 
-import com.kumuluz.ee.kumuluzee.axon.transaction.JtaTransactionManager;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.xml.XStreamSerializer;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Named;
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
 
@@ -17,8 +14,10 @@ public class GatewayConfig {
             MethodHandles.lookup().lookupClass().getName());
 
 
+    /*
     @Produces
     @ApplicationScoped
+    @Named("serializer")
     public Serializer getGeneralSerializer() {
         return XStreamSerializer.builder().build();
     }
@@ -30,13 +29,6 @@ public class GatewayConfig {
         return XStreamSerializer.builder().build();
     }
 
-
-    @Produces
-    @ApplicationScoped
-    public Serializer getDefaultSerializer() {
-        return XStreamSerializer.builder().build();
-    }
-    /*
     @Produces
     @ApplicationScoped
     public EntityManager entityManager() {

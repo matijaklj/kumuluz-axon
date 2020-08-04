@@ -36,6 +36,13 @@ public class AxonServerProperties {
     private final static Integer commandLoadFactor = 100;
     private final static Long connectTimeout = 5000L;
 
+    private static String getConfig(String key) {
+        if (config.get(AXON_SERVER_CONFIG_KEY + key).isPresent())
+            return config.get(AXON_SERVER_CONFIG_KEY + key).get();
+        else
+            return null;
+    }
+
     private static String getConfig(String key, String defaltValue) {
         if (config.get(AXON_SERVER_CONFIG_KEY + key).isPresent())
             return config.get(AXON_SERVER_CONFIG_KEY + key).get();
@@ -65,7 +72,7 @@ public class AxonServerProperties {
     }
 
     public static String getServers() {
-        return getConfig("servers", servers);
+        return getConfig("servers");
     }
 
     public static  String getClientId() {

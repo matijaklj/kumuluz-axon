@@ -1,5 +1,7 @@
-package com.kumuluz.ee.kumuluzee.axon.tests.test_classes;
+package com.kumuluz.ee.kumuluzee.axon.tests.beanz;
 
+import com.kumuluz.ee.kumuluzee.axon.tests.test_classes.TestCommand;
+import com.kumuluz.ee.kumuluzee.axon.tests.test_classes.TestEvent;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventhandling.gateway.EventGateway;
 import org.axonframework.queryhandling.QueryHandler;
@@ -7,13 +9,19 @@ import org.axonframework.queryhandling.QueryHandler;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+/**
+ * Test Command handler bean
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 @ApplicationScoped
-public class TestCommandHandler {
+public class CommandHandlerBean {
 
     @Inject
     private EventGateway eventGateway;
 
-    public TestCommandHandler() {}
+    public CommandHandlerBean() {}
 
     @CommandHandler
     public void handle(TestCommand cmd) {

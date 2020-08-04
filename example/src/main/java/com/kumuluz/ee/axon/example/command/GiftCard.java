@@ -12,14 +12,10 @@ import org.slf4j.LoggerFactory;
 
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
-//@Aggregate//(repository = "myGiftCardRepository")
-//@Entity
-//@ApplicationScoped
 public class GiftCard {
 
     private final static Logger log = LoggerFactory.getLogger(GiftCard.class);
 
-    //@Id
     @AggregateIdentifier
     private String id;
     private int remainingValue;
@@ -29,7 +25,7 @@ public class GiftCard {
     }
 
     @CommandHandler
-    GiftCard(IssueCmd cmd) {
+    public GiftCard(IssueCmd cmd) {
         log.info("handling {}", cmd);
         if (cmd.getAmount() <= 0) throw new IllegalArgumentException("amount <= 0");
         apply(new IssuedEvt(cmd.getId(), cmd.getAmount()));

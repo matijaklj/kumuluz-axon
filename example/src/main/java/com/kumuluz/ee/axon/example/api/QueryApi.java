@@ -1,10 +1,6 @@
 package com.kumuluz.ee.axon.example.api;
 
-import com.kumuluz.ee.axon.example.command.GiftCard;
-
 import javax.enterprise.context.RequestScoped;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -15,9 +11,6 @@ import java.util.concurrent.ExecutionException;
 @Produces(MediaType.APPLICATION_JSON)
 @Path("queries")
 public class QueryApi {
-
-    @PersistenceContext
-    private EntityManager em;
 
     @GET
     @Path("{giftcardId}")
@@ -32,7 +25,6 @@ public class QueryApi {
 
         FindGiftCardQry q = new FindGiftCardQry(id);
 
-        em.find(GiftCard.class, id);
         // (1) create a query message
         //GenericQueryMessage<FindGiftCardQry, GiftCardRecord> query =
         //        new GenericQueryMessage<>(q, ResponseTypes.instanceOf(GiftCardRecord.class));

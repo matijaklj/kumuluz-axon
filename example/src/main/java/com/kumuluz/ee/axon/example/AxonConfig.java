@@ -10,7 +10,6 @@ import org.mapdb.DBMaker;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
@@ -18,9 +17,6 @@ import java.util.logging.Logger;
 public class AxonConfig {
 
     private static final Logger log = Logger.getLogger(AxonConfig.class.getName());
-
-    @Inject
-    private TestProperty testProperty;
 
     @Produces
     public ConcurrentMap<String, GiftCardRecord> querySideMap() {

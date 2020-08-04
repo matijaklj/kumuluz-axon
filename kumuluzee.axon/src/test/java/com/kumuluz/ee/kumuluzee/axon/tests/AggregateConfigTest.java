@@ -22,9 +22,14 @@ import org.testng.annotations.Test;
 
 import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
-import java.time.Instant;
 import java.util.logging.Logger;
 
+/**
+ * Aggregates tests
+ *
+ * @author Matija Kljun
+ * @since 0.0.1
+ */
 public class AggregateConfigTest extends Arquillian {
 
     private static final Logger log = Logger.getLogger(AggregateConfigTest.class.getName());
