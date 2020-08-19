@@ -35,6 +35,7 @@ import javax.inject.Named;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,7 @@ public class AxonConfigurationCdiExtension implements Extension {
     private Bean<?> queryGatewayProducerBean;
     private Bean<?> eventBusProducerBean;
     private Bean<?> eventGatewayProducerBean;
+    private Bean<?> eventProcessingModuleProducerBean;
 
     private Bean<?> serializerProducerBean; // todo 2 of them
     private Bean<?> eventSerializerProducerBean; // todo 2 of them
@@ -71,9 +73,6 @@ public class AxonConfigurationCdiExtension implements Extension {
     private final List<MessageHandlingBeanDefinition> messageHandlers = new ArrayList<>();
 
     private final Map<String, Bean<?>> aggregateRepositoryBeansMap = new HashMap<>();
-
-    @Inject
-    private AxonServerProperties axonServerProperties;
 
     <T> void processMessageHandlingBean(@Observes final ProcessBean<T> processBean) {
         MessageHandlingBeanDefinition.inspect(processBean.getBean(), processBean.getAnnotated())
@@ -313,6 +312,16 @@ public class AxonConfigurationCdiExtension implements Extension {
         this.deadlineManagerBean = ppm.getBean();
     }
 
+    <T> void processEventProcessingModuleProducerMethod(
+            @Observes final ProcessProducerMethod<EventProcessingModule, T> ppm) {
+        log.fine("Producer method for EventProcessingModule found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
+
+        if (this.deadlineManagerBean != null) {
+            log.severe("There can be only one EventProcessingModule producer!");
+        }
+        this.eventProcessingModuleProducerBean = ppm.getBean();
+    }
+
     <T> void processCorrelationDataProviderProducerMethod(
             @Observes final ProcessProducerMethod<CorrelationDataProvider, T> ppm) {
         log.fine("Producer method for ErrorHandler found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
@@ -337,7 +346,6 @@ public class AxonConfigurationCdiExtension implements Extension {
 
         if (this.configurerProducer != null) {
             configurer = produce(bm, this.configurerProducer);
-            //Configurer conf = (Configurer) bm.getReference(this.configurerBean, Configurer.class, bm.createCreationalContext(this.configurerBean));
             log.info("Using provided Configurer producer: " + configurer.getClass().getSimpleName());
         } else {
             log.info("No configurer producer defined, using default configuration.");
@@ -349,7 +357,7 @@ public class AxonConfigurationCdiExtension implements Extension {
 
         if (commandGatewayProducerBean != null)
             registerComponent(CommandGateway.class, (c) -> configurer.registerComponent(CommandGateway.class, c),
-                    configurer, (c) -> c.getComponent(CommandGateway.class), commandGatewayProducerBean, bm);
+                    configurer, Configuration::commandGateway, commandGatewayProducerBean, bm);
 
         if (queryBusProducerBean != null)
             registerComponent(QueryBus.class, configurer::configureQueryBus, configurer,
@@ -357,7 +365,7 @@ public class AxonConfigurationCdiExtension implements Extension {
 
         if (queryGatewayProducerBean != null)
             registerComponent(QueryGateway.class, (c) -> configurer.registerComponent(QueryGateway.class, c),
-                    configurer, Configuration::queryBus, queryGatewayProducerBean, bm);
+                    configurer, Configuration::queryGateway, queryGatewayProducerBean, bm);
 
         if (eventBusProducerBean != null)
             registerComponent(EventBus.class, configurer::configureEventBus, configurer,
@@ -371,7 +379,6 @@ public class AxonConfigurationCdiExtension implements Extension {
             registerComponent(Serializer.class, configurer::configureSerializer,
                     configurer, Configuration::serializer, serializerProducerBean, bm);
         } else {
-            // todo check in kumuluz config for config values for serializers and configure them // copy from spring autoconfig
             SerializerProperties.SerializerType generalType = SerializerProperties.getGeneralSerializerType();
         }
 
@@ -379,7 +386,6 @@ public class AxonConfigurationCdiExtension implements Extension {
             registerComponent(Serializer.class, configurer::configureEventSerializer,
                     configurer, Configuration::eventSerializer, eventSerializerProducerBean, bm);
         } else {
-            // todo check in kumuluz config for config values for serializers and configure them // copy from spring autoconfig
             SerializerProperties.SerializerType eventType = SerializerProperties.getEventSerializerType();
         }
 
@@ -387,34 +393,41 @@ public class AxonConfigurationCdiExtension implements Extension {
             registerComponent(Serializer.class, configurer::configureMessageSerializer,
                     configurer, Configuration::messageSerializer, messageSerializerProducerBean, bm);
         } else {
-            // todo check in kumuluz config for config values for serializers and configure them // copy from spring autoconfig
+            // todo serializer config
             SerializerProperties.SerializerType messageType = SerializerProperties.getMessageSerializerType();
+        }
+
+        // event processing module config
+        if (eventProcessingModuleProducerBean != null) {
+            // todo this doesnt work
+            //registerModule(EventProcessingModule.class, configurer::registerModule,
+            //        configurer, Configuration::eventProcessingConfiguration, eventProcessingModuleProducerBean, bm);
         }
 
         // configure other components
         if (eventStorageEngineBean != null) {
             registerComponent(EventStorageEngine.class, configurer::configureEmbeddedEventStore,
-                    configurer, Configuration::commandGateway, eventStorageEngineBean, bm);
+                    configurer, Configuration::eventStore, eventStorageEngineBean, bm);
         }
         if (entityManagerProviderBean != null) {
             registerComponent(EntityManagerProvider.class, (f) -> configurer.registerComponent(EntityManagerProvider.class, f),
-                    configurer, Configuration::commandGateway, entityManagerProviderBean, bm);
+                    entityManagerProviderBean, bm);
         }
         if (transactionManagerBean != null) {
             registerComponent(TransactionManager.class, configurer::configureTransactionManager,
-                    configurer, Configuration::commandGateway, transactionManagerBean, bm);
+                    transactionManagerBean, bm);
         }
         if (tokenStoreBean != null) {
             registerComponent(TokenStore.class, (f) -> configurer.registerComponent(TokenStore.class, f),
-                    configurer, Configuration::commandGateway, tokenStoreBean, bm);
+                    tokenStoreBean, bm);
         }
         if (listenerInvocationErrorHandlerBean != null) {
             registerComponent(ListenerInvocationErrorHandler.class, (f) -> configurer.registerComponent(ListenerInvocationErrorHandler.class, f),
-                    configurer, Configuration::commandGateway, listenerInvocationErrorHandlerBean, bm);
+                    listenerInvocationErrorHandlerBean, bm);
         }
         if (errorHandlerBean != null) {
             registerComponent(ErrorHandler.class, (f) -> configurer.registerComponent(ErrorHandler.class, f),
-                    configurer, Configuration::commandGateway, errorHandlerBean, bm);
+                    errorHandlerBean, bm);
         }
         if (queryUpdateEmitterBean != null) {
             registerComponent(QueryUpdateEmitter.class, configurer::configureQueryUpdateEmitter,
@@ -427,6 +440,8 @@ public class AxonConfigurationCdiExtension implements Extension {
 
         configureCorrelationDataProviders(configurer, bm);
         configureEventUpcasters(configurer, bm);
+
+        AxonEventProcessorsConfigurer.registerEventProcessors(configurer);
 
         registerAggregates(bm, configurer);
         registerMessageHandlers(bm, configurer);
@@ -494,6 +509,13 @@ public class AxonConfigurationCdiExtension implements Extension {
         );
     }
 
+    private <T> void registerComponent(Class<T> componentType,
+                                       Consumer<Function<Configuration, T>> registrationFunction,
+                                       Bean bean,
+                                       BeanManager bm) {
+        registerComponent(componentType, registrationFunction, null, null, bean, bm);
+    }
+
     @SuppressWarnings("unchecked")
     private <T> void registerComponent(Class<T> componentType,
                                         Consumer<Function<Configuration, T>> registrationFunction,
@@ -510,10 +532,6 @@ public class AxonConfigurationCdiExtension implements Extension {
         }
     }
 
-    private <T> T getBean(Class<T> componentType, Configuration configuration) {
-        return CDI.current().select(componentType).get();
-    }
-
     @SuppressWarnings("unchecked")
     private <T> T getBeanReference(Class<T> componentType, Bean<?> bean, BeanManager bm) {
         return (T) bm.getReference(bean, componentType, bm.createCreationalContext(bean));
@@ -526,7 +544,6 @@ public class AxonConfigurationCdiExtension implements Extension {
 
     @SuppressWarnings("unchecked")
     private <T> void registerAggregateComponent(BeanManager bm, Bean bean, Consumer<Function<Configuration, Repository<T>>> registrationFunction) {
-
         registrationFunction.accept(config ->
                 (Repository) bm.getReference(bean, Object.class, bm.createCreationalContext(bean)));
     }
@@ -547,7 +564,6 @@ public class AxonConfigurationCdiExtension implements Extension {
                 Bean repoBean = aggregateRepositoryBeansMap.get(aggregateDefinition.repository().get());
                 registerAggregateComponent(beanManager, repoBean, aggregateConfigurer::configureRepository);
             } else {
-                // todo here we should create the Repository from scratch???
                 if (aggregateRepositoryBeansMap.containsKey(aggregateDefinition.repositoryName())) {
                     Bean repoBean = aggregateRepositoryBeansMap.get(aggregateDefinition.repositoryName());
                     registerAggregateComponent(beanManager, repoBean, aggregateConfigurer::configureRepository);
@@ -555,7 +571,6 @@ public class AxonConfigurationCdiExtension implements Extension {
                     if (aggregateDefinition.isJpaAggregate()) {
                         aggregateConfigurer.configureRepository(
                                 c -> (Repository) GenericJpaRepository.builder(aggregateDefinition.aggregateType())
-                                        // TODO: 8/29/2018 what to do about default EntityManagerProvider (check spring impl)
                                         .entityManagerProvider(c.getComponent(EntityManagerProvider.class))
                                         .eventBus(c.eventBus())
                                         .repositoryProvider(c::repository)
@@ -564,30 +579,9 @@ public class AxonConfigurationCdiExtension implements Extension {
                                         .handlerDefinition(c.handlerDefinition(aggregateDefinition.aggregateType()))
                                         .build());
                     }
+                    // else use default repository
                 }
             }
-
-            /* todo configureCommandTargetResolver
-            if (aggregateDefinition.commandTargetResolver().isPresent()) {
-                aggregateConfigurer.configureCommandTargetResolver(
-                        c -> produce(beanManager,
-                                commandTargetResolverProducerMap.get(aggregateDefinition.commandTargetResolver().get())));
-            } else {
-                commandTargetResolverProducerMap.keySet()
-                        .stream()
-                        .filter(resolver ->
-                                aggregates.stream()
-                                        .filter(a -> a.commandTargetResolver().isPresent())
-                                        .map(a -> a.commandTargetResolver().get())
-                                        .noneMatch(resolver::equals)
-                        )
-                        .findFirst()
-                        .ifPresent(resolver -> aggregateConfigurer.configureCommandTargetResolver(
-                                c -> produce(beanManager,
-                                        commandTargetResolverProducerMap.get(resolver))
-                        ));
-            }
-             */
 
             configurer.configureAggregate(aggregateConfigurer);
         });

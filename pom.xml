@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.kumuluz.ee.axon</groupId>
-    <artifactId>kumuluzee-axon</artifactId>
+    <artifactId>kumuluzee-axon-extension</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <modules>
@@ -36,6 +36,7 @@
         <axon.version>4.3</axon.version>
         <kumuluzee-logs.version>1.4.2   </kumuluzee-logs.version>
         <jaxb-api.version>2.3.0</jaxb-api.version>
+        <shrinkwrap.version>3.1.4</shrinkwrap.version>
     </properties>
 
     <dependencyManagement>

@@ -18,3 +18,11 @@ axon:
       initialNrOfPermits: 444
       nrOfNewPermits: 444
       newPermitsThreshold: 444
+kumuluzee:
+  datasources:
+    - jndi-name: jdbc/testDS
+      connection-url: jdbc:postgresql://localhost:5432/test
+      username: postgres
+      password: postgres
+      pool:
+        max-size: 20

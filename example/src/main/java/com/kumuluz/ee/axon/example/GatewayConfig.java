@@ -1,9 +1,14 @@
 package com.kumuluz.ee.axon.example;
 
+import org.axonframework.config.EventProcessingConfigurer;
+import org.axonframework.config.EventProcessingModule;
+import org.axonframework.messaging.unitofwork.RollbackConfiguration;
+import org.axonframework.messaging.unitofwork.RollbackConfigurationType;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.xml.XStreamSerializer;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
 
@@ -14,7 +19,18 @@ public class GatewayConfig {
             MethodHandles.lookup().lookupClass().getName());
 
 
+
     /*
+    @ApplicationScoped
+    @Produces
+    public EventProcessingModule getModule() {
+        EventProcessingModule evProc = new EventProcessingModule();
+        evProc.usingTrackingEventProcessors();
+        evProc.registerRollbackConfiguration("com.kumuluz.ee.axon.example.query",
+                c -> RollbackConfigurationType.NEVER);
+
+        return  evProc;
+    }
     @Produces
     @ApplicationScoped
     @Named("serializer")

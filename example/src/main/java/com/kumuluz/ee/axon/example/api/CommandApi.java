@@ -2,10 +2,13 @@ package com.kumuluz.ee.axon.example.api;
 
 import com.kumuluz.ee.kumuluzee.axon.properties.AxonServerProperties;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.common.jpa.EntityManagerProvider;
 import org.axonframework.config.Configuration;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,8 +31,11 @@ public class CommandApi {
     /*@Inject
     @Named("eventSerializer")
     private Serializer eventSerializer;
-
      */
+
+    @PersistenceContext
+    private EntityManager emm;
+
     @Inject
     private AxonServerProperties axonServerProperties;
 
@@ -38,6 +44,7 @@ public class CommandApi {
         String cardId = UUID.randomUUID().toString();
 
         //MyCommandGateway myCommandGateway = (MyCommandGateway) this.commandGateway;
+        EntityManager em = configuration.getComponent(EntityManagerProvider.class).getEntityManager();
 
         CompletableFuture<String> futureResult = this.commandGateway
                 .send(issueCmd);
