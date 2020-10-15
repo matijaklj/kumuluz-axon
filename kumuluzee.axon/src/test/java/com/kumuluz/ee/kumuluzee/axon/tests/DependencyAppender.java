@@ -18,6 +18,7 @@
  *  software. See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.kumuluz.ee.kumuluzee.axon.tests;
 
 import com.kumuluz.ee.testing.arquillian.spi.MavenDependencyAppender;
@@ -30,7 +31,7 @@ import java.util.ResourceBundle;
  * Adds required dependencies to the deployments.
  *
  * @author Matija Kljun
- * @since 0.0.1
+ * @since 1.0.0
  */
 public class DependencyAppender implements MavenDependencyAppender {
 

@@ -25,7 +25,7 @@
             <artifactId>kumuluzee-jax-rs-jersey</artifactId>
         </dependency>
 
-        <!-- jpa test -->
+        <!-- jpa test
         <dependency>
             <groupId>com.kumuluz.ee</groupId>
             <artifactId>kumuluzee-jpa-hibernate</artifactId>
@@ -39,7 +39,7 @@
             <artifactId>postgresql</artifactId>
             <version>42.0.0</version>
         </dependency>
-        <!-- / jpa test -->
+        / jpa test -->
 
         <dependency>
             <groupId>javax.activation</groupId>

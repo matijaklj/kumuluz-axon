@@ -10,7 +10,7 @@ import javax.enterprise.context.ApplicationScoped;
  * Test Aggregate class
  *
  * @author Matija Kljun
- * @since 0.0.1
+ * @since 1.0.0
  */
 @Aggregate
 @ApplicationScoped

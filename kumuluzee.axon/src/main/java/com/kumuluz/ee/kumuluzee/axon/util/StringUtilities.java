@@ -19,31 +19,27 @@
  *  limitations under the License.
  */
 
-package com.kumuluz.ee.axon.example.api;
+package com.kumuluz.ee.kumuluzee.axon.util;
 
-public class RedeemedEvt {
+import java.util.Optional;
 
-    private String id;
-    private Integer amount;
+/**
+ * String utilities class.
+ *
+ * @author Matija Kljun
+ * @since 1.0.0
+ */
+public class StringUtilities {
 
-    public RedeemedEvt(String id, Integer amount) {
-        this.id = id;
-        this.amount = amount;
+    public static String lowerCaseFirstLetter(String string) {
+        return string.substring(0, 1).toLowerCase() + string.substring(1);
     }
 
-    public String getId() {
-        return id;
-    }
+    public static Optional<String> createOptional(String value) {
+        if ("".equals(value)) {
+            return Optional.empty();
+        }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
+        return Optional.of(value);
     }
 }

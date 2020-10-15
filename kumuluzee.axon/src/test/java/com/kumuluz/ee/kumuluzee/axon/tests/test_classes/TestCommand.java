@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Test Command class
  *
  * @author Matija Kljun
- * @since 0.0.1
+ * @since 1.0.0
  */
 public class TestCommand implements Serializable {
 

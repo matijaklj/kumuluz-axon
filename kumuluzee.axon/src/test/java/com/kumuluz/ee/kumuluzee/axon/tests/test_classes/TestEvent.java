@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Test Event class
  *
  * @author Matija Kljun
- * @since 0.0.1
+ * @since 1.0.0
  */
 public class TestEvent implements Serializable {
 

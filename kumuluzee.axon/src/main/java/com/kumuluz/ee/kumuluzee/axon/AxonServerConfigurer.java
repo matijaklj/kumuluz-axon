@@ -1,81 +1,121 @@
+/*
+ *  Copyright (c) 2014-2017 Kumuluz and/or its affiliates
+ *  and other contributors as indicated by the @author tags and
+ *  the contributor list.
+ *
+ *  Licensed under the MIT License (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  https://opensource.org/licenses/MIT
+ *
+ *  The software is provided "AS IS", WITHOUT WARRANTY OF ANY KIND, express or
+ *  implied, including but not limited to the warranties of merchantability,
+ *  fitness for a particular purpose and noninfringement. in no event shall the
+ *  authors or copyright holders be liable for any claim, damages or other
+ *  liability, whether in an action of contract, tort or otherwise, arising from,
+ *  out of or in connection with the software or the use or other dealings in the
+ *  software. See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package com.kumuluz.ee.kumuluzee.axon;
 
-import com.kumuluz.ee.kumuluzee.axon.properties.AxonServerProperties;
+import com.kumuluz.ee.kumuluzee.axon.properties.AxonServerConfigLoader;
 import org.axonframework.axonserver.connector.AxonServerConfiguration;
 import org.axonframework.axonserver.connector.AxonServerConnectionManager;
 import org.axonframework.axonserver.connector.util.AxonFrameworkVersionResolver;
 import org.axonframework.config.Configurer;
 
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * Utility method for registering Axon Server.
+ *
+ * @author Matija Kljun
+ * @since 1.0.0
+ */
 class AxonServerConfigurer {
 
+    @SuppressWarnings("unchecked")
     static void registerAxonServer(Configurer configurer) {
         AxonServerConfiguration.Builder builder = new AxonServerConfiguration.Builder();
 
-        if (AxonServerProperties.getServers() != null)
-            builder.servers(AxonServerProperties.getServers());
+        Map<String, Object> config = AxonServerConfigLoader.getConfig();
 
-        if (AxonServerProperties.getComponentName() != null)
-            builder.componentName(AxonServerProperties.getComponentName());
+        if (config.containsKey("servers"))
+            builder.servers((String)config.get("servers"));
 
-        if (AxonServerProperties.getClientId() != null)
-            builder.clientId(AxonServerProperties.getClientId());
+        if (config.containsKey("componentName"))
+            builder.componentName((String)config.get("componentName"));
 
-        if (AxonServerProperties.getToken() != null)
-            builder.token(AxonServerProperties.getToken());
+        if (config.containsKey("clientId"))
+            builder.clientId((String)config.get("clientId"));
 
-        if (AxonServerProperties.getContext() != null)
-            builder.context(AxonServerProperties.getContext());
+        if (config.containsKey("token"))
+            builder.token((String)config.get("token"));
 
-        if (AxonServerProperties.isSslEnabled() && AxonServerProperties.getCertFile() != null)
-            builder.ssl(AxonServerProperties.getCertFile());
+        if (config.containsKey("context"))
+            builder.context((String)config.get("context"));
 
-        if (AxonServerProperties.getInitialNrOfPermits() != null &&
-            AxonServerProperties.getNrOfNewPermits() != null &&
-            AxonServerProperties.getNewPermitsThreshold() != null)
-            builder.flowControl(AxonServerProperties.getInitialNrOfPermits(),
-                    AxonServerProperties.getNrOfNewPermits(),
-                    AxonServerProperties.getNewPermitsThreshold());
+        if (config.containsKey("sslEnabled") && (boolean) config.get("sslEnabled") && config.containsKey("certFile"))
+            builder.ssl((String)config.get("certFile"));
 
-        // event flow control
-        if (AxonServerProperties.getEventInitialNrOfPermits() != null &&
-                AxonServerProperties.getEventNrOfNewPermits() != null &&
-                AxonServerProperties.getEventNewPermitsThreshold() != null)
-            builder.eventFlowControl(AxonServerProperties.getEventInitialNrOfPermits(),
-                    AxonServerProperties.getEventNrOfNewPermits(),
-                    AxonServerProperties.getEventNewPermitsThreshold());
+        if (config.containsKey("initialNrOfPermits") &&
+                config.containsKey("nrOfNewPermits") &&
+                config.containsKey("newPermitsThreshold"))
+            builder.flowControl((int)config.get("initialNrOfPermits"),
+                    (int)config.get("nrOfNewPermits"),
+                    (int)config.get("newPermitsThreshold"));
 
-        // command flow control
-        if (AxonServerProperties.getCommandInitialNrOfPermits() != null &&
-                AxonServerProperties.getCommandNrOfNewPermits() != null &&
-                AxonServerProperties.getCommandNewPermitsThreshold() != null)
-            builder.commandFlowControl(AxonServerProperties.getCommandInitialNrOfPermits(),
-                    AxonServerProperties.getCommandNrOfNewPermits(),
-                    AxonServerProperties.getCommandNewPermitsThreshold());
+        if (config.containsKey("event") && config.get("event") instanceof Map) {
+            Map<String, Object> eventConfig = (Map<String, Object>)config.get("event");
 
-        // query flow control
-        if (AxonServerProperties.getQueryInitialNrOfPermits() != null &&
-                AxonServerProperties.getQueryNrOfNewPermits() != null &&
-                AxonServerProperties.getQueryNewPermitsThreshold() != null)
-            builder.queryFlowControl(AxonServerProperties.getQueryInitialNrOfPermits(),
-                    AxonServerProperties.getQueryNrOfNewPermits(),
-                    AxonServerProperties.getQueryNewPermitsThreshold());
+            if (eventConfig.containsKey("initialNrOfPermits") &&
+                    eventConfig.containsKey("nrOfNewPermits") &&
+                    eventConfig.containsKey("newPermitsThreshold"))
+                builder.flowControl((int)eventConfig.get("initialNrOfPermits"),
+                    (int)eventConfig.get("nrOfNewPermits"),
+                    (int)eventConfig.get("newPermitsThreshold"));
+        }
 
-        if (AxonServerProperties.getSnapshotPrefetch() != null)
-            builder.snapshotPrefetch(AxonServerProperties.getSnapshotPrefetch());
+        if (config.containsKey("command") && config.get("command") instanceof Map) {
+            Map<String, Object> commandConfig = (Map<String, Object>)config.get("command");
 
-        if (AxonServerProperties.isSuppressDownloadMessage())
+            if (commandConfig.containsKey("initialNrOfPermits") &&
+                    commandConfig.containsKey("nrOfNewPermits") &&
+                    commandConfig.containsKey("newPermitsThreshold"))
+                builder.flowControl((int)commandConfig.get("initialNrOfPermits"),
+                        (int)commandConfig.get("nrOfNewPermits"),
+                        (int)commandConfig.get("newPermitsThreshold"));
+        }
+
+        if (config.containsKey("query") && config.get("query") instanceof Map) {
+            Map<String, Object> queryConfig = (Map<String, Object>)config.get("query");
+
+            if (queryConfig.containsKey("initialNrOfPermits") &&
+                    queryConfig.containsKey("nrOfNewPermits") &&
+                    queryConfig.containsKey("newPermitsThreshold"))
+                builder.queryFlowControl((int)queryConfig.get("initialNrOfPermits"),
+                        (int)queryConfig.get("nrOfNewPermits"),
+                        (int)queryConfig.get("newPermitsThreshold"));
+        }
+
+        if (config.containsKey("snapshotPrefetch"))
+            builder.snapshotPrefetch((int)config.get("snapshotPrefetch"));
+
+        if (config.containsKey("suppressDownloadMessage") && (boolean)config.get("suppressDownloadMessage"))
             builder.suppressDownloadMessage();
 
-        if (AxonServerProperties.getMaxMessageSize() != null)
-            builder.maxMessageSize(AxonServerProperties.getMaxMessageSize());
+        if (config.containsKey("maxMessageSize"))
+            builder.maxMessageSize((int)config.get("maxMessageSize"));
 
-        if (AxonServerProperties.getCommandLoadFactor() != null)
-            builder.commandLoadFactor(AxonServerProperties.getCommandLoadFactor());
+        if (config.containsKey("commandLoadFactor"))
+            builder.commandLoadFactor((int)config.get("commandLoadFactor"));
 
-        if (AxonServerProperties.getConnectTimeout() != null)
-            builder.connectTimeout(AxonServerProperties.getConnectTimeout());
+        if (config.containsKey("connectTimeout"))
+            builder.connectTimeout((int)config.get("connectTimeout"));
 
         configurer.registerComponent(AxonServerConfiguration.class, c -> builder.build());
 
@@ -88,14 +128,6 @@ class AxonServerConfigurer {
             if (c.getComponent(AxonFrameworkVersionResolver.class) != null) {
                 b.axonFrameworkVersionResolver(c.getComponent(AxonFrameworkVersionResolver.class));
             }
-            /* todo how to configure this values ?
-            if (c.getComponent(InstructionAckSource.class) != null) {
-                b.instructionAckSource(c.getComponent(InstructionAckSource.class));
-            }
-            if (c.getComponent(InstructionAckSource.class) != null) {
-                b.requestStreamFactory();
-            }
-             */
             if (c.getComponent(ScheduledExecutorService.class) != null) {
                 b.scheduler(c.getComponent(ScheduledExecutorService.class));
             }

@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Test Query class
  *
  * @author Matija Kljun
- * @since 0.0.1
+ * @since 1.0.0
  */
 public class TestQuery implements Serializable {
 

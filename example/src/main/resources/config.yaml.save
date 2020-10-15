@@ -1,0 +1,14 @@
+axon:
+  axonserver:
+    componentName: kumuluz-axon-example
+
+
+kumuluzee:
+  datasources:
+    - jndi-name: jdbc/testDS
+      connection-url: jdbc:postgresql://localhost:5432/test
+
+      username: postgres
+      password: postgres
+      pool:
+        max-size: 20
