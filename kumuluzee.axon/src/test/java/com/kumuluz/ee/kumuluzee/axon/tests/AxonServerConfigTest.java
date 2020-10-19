@@ -44,7 +44,7 @@ public class AxonServerConfigTest extends Arquillian {
     @Deployment
     public static JavaArchive createDeployment() {
         return ShrinkWrap.create(JavaArchive.class)
-                .addAsResource("config.yml")
+                .addAsResource("config.yaml")
                 .addAsManifestResource (EmptyAsset.INSTANCE, "beans.xml");
     }
 
@@ -54,6 +54,15 @@ public class AxonServerConfigTest extends Arquillian {
     @Test
     public void testAxonServerConfiguration() {
         AxonServerConfiguration serverConfiguration = this.configuration.getComponent(AxonServerConfiguration.class);
+
+        try {
+            Class.forName("org.axonframework.axonserver.connector.AxonServerConfiguration");
+            System.out.println("yes axon server");
+        } catch (Throwable ex) {
+            System.out.println("No Axon Server configured. If you would like to use Axon Server, " +
+                    "please add the `axon-server-connector` dependency.");
+        }
+
 
         Assert.assertNotNull(serverConfiguration);
         Assert.assertEquals(serverConfiguration.getClientId(), "testClientId");

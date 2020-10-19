@@ -21,9 +21,10 @@
 
 package com.kumuluz.ee.axon.example.query;
 
-import com.kumuluz.ee.axon.example.api.FindGiftCardQry;
-import com.kumuluz.ee.axon.example.api.GiftCardRecord;
-import com.kumuluz.ee.axon.example.api.IssuedEvt;
+import com.kumuluz.ee.axon.example.api.queries.FindGiftCardQry;
+import com.kumuluz.ee.axon.example.api.queries.GiftCardRecord;
+import com.kumuluz.ee.axon.example.api.events.IssuedEvt;
+import com.kumuluz.ee.axon.example.api.events.RedeemedEvt;
 import org.axonframework.config.Configuration;
 import org.axonframework.eventhandling.EventHandler;
 import org.slf4j.Logger;
@@ -34,6 +35,11 @@ import javax.inject.Inject;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Axon query side event handlers.
+ *
+ * @author Matija Kljun
+ */
 @ApplicationScoped
 public class GiftCardEventHandler {
 
@@ -41,30 +47,32 @@ public class GiftCardEventHandler {
 
     @Inject
     Configuration configuration;
-    //private QueryUpdateEmitter queryUpdateEmitter;
+
     @Inject
     private ConcurrentMap<String, GiftCardRecord> querySideMap;
 
-    /*@Inject
-    public GiftCardEventHandler(Configuration configuration, ConcurrentMap querySideMap) {
-        this.queryUpdateEmitter = configuration.queryUpdateEmitter();
-        this.querySideMap = querySideMap;
-    }
-
-     */
     public GiftCardEventHandler() {
 
     }
 
     @EventHandler
     void on(IssuedEvt event) {
-        log.info("handling {}", event);
+        log.info("query side handling {}", event);
 
-        /* Save the record */
         GiftCardRecord record = new GiftCardRecord(event.getId(), event.getAmount(), event.getAmount());
         querySideMap.put(event.getId(), record);
 
-        /* Send it to subscription queries of type FindGiftCardQry, but only if the gift card id matches. */
+        this.configuration.queryUpdateEmitter().emit(FindGiftCardQry.class, findGiftCardQry -> Objects.equals(event.getId(), findGiftCardQry.getId()), record);
+    }
+
+    @EventHandler
+    void on(RedeemedEvt event) {
+        log.info("query side handling {}", event);
+
+        GiftCardRecord oldRecord = querySideMap.get(event.getId());
+        GiftCardRecord record = new GiftCardRecord(event.getId(), oldRecord.getInitialValue(), oldRecord.getRemainingValue() - event.getAmount());
+        querySideMap.put(event.getId(), record);
+
         this.configuration.queryUpdateEmitter().emit(FindGiftCardQry.class, findGiftCardQry -> Objects.equals(event.getId(), findGiftCardQry.getId()), record);
     }
 }

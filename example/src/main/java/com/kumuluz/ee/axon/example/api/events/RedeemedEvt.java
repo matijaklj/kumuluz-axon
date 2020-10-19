@@ -19,8 +19,13 @@
  *  limitations under the License.
  */
 
-package com.kumuluz.ee.axon.example.api;
+package com.kumuluz.ee.axon.example.api.events;
 
+/**
+ * Gift card redeemed Axon event.
+ *
+ * @author Matija Kljun
+ */
 public class RedeemedEvt {
 
     private String id;

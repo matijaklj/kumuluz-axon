@@ -19,43 +19,38 @@
  *  limitations under the License.
  */
 
-package com.kumuluz.ee.axon.example.api;
+package com.kumuluz.ee.axon.example.api.events;
 
 import java.io.Serializable;
 
-public class GiftCardRecord implements Serializable {
+/**
+ * Gift card issued Axon event.
+ *
+ * @author Matija Kljun
+ */
+public class IssuedEvt implements Serializable {
 
     private String id;
-    private Integer initialValue;
-    private Integer remainingValue;
+    private Integer amount;
 
-    public GiftCardRecord(String id, Integer initialValue, Integer remainingValue) {
+    public IssuedEvt(String id, Integer amount) {
         this.id = id;
-        this.initialValue = initialValue;
-        this.remainingValue = remainingValue;
-    }
-
-    public GiftCardRecord() {
+        this.amount = amount;
     }
 
     public String getId() {
         return id;
     }
 
-    public Integer getInitialValue() {
-        return initialValue;
-    }
-
-    public Integer getRemainingValue() {
-        return remainingValue;
+    public Integer getAmount() {
+        return amount;
     }
 
     @Override
     public String toString() {
-        return "GiftCardRecord{" +
+        return "IssuedEvt{" +
                 "id='" + id + '\'' +
-                ", initialValue=" + initialValue +
-                ", remainingValue=" + remainingValue +
+                ", amount=" + amount +
                 '}';
     }
 }

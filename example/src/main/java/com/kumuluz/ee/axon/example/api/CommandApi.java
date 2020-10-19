@@ -21,45 +21,35 @@
 
 package com.kumuluz.ee.axon.example.api;
 
+import com.kumuluz.ee.axon.example.api.commands.IssueCmd;
+import com.kumuluz.ee.axon.example.api.commands.RedeemCmd;
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.axonframework.common.jpa.EntityManagerProvider;
-import org.axonframework.config.Configuration;
-
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Rest api for command side.
+ *
+ * @author Matija Kljun
+ */
 @RequestScoped
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("commands")
 public class CommandApi {
 
-
-    @Inject
-    private Configuration configuration;
-
     @Inject
     private CommandGateway commandGateway;
 
-    /*@Inject
-    @Named("eventSerializer")
-    private Serializer eventSerializer;
-     */
 
     @POST
     public Response issueGiftCard(IssueCmd issueCmd) {
-        String cardId = UUID.randomUUID().toString();
 
-        //MyCommandGateway myCommandGateway = (MyCommandGateway) this.commandGateway;
-
-        CompletableFuture<String> futureResult = this.commandGateway
-                .send(issueCmd);
-
+        CompletableFuture futureResult = this.commandGateway.send(issueCmd);
         try {
             return Response.ok(futureResult.get()).build();
         } catch (Exception e) {
@@ -69,9 +59,9 @@ public class CommandApi {
 
     @POST
     @Path("/redeem/{id}/{amount}")
-    public Response issueGiftCard(@PathParam("id") String giftCardId, @PathParam("amount") int amount) {
+    public Response redeemGiftCard(@PathParam("id") String giftCardId, @PathParam("amount") int amount) {
 
-        CompletableFuture<String> futureResult = this.configuration.commandGateway()
+        CompletableFuture<String> futureResult = commandGateway
                 .send(new RedeemCmd(giftCardId, amount));
 
         try {

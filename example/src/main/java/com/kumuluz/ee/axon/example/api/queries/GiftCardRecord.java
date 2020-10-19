@@ -19,40 +19,48 @@
  *  limitations under the License.
  */
 
-package com.kumuluz.ee.axon.example.api;
-
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
+package com.kumuluz.ee.axon.example.api.queries;
 
 import java.io.Serializable;
 
-public class IssueCmd implements Serializable {
+/**
+ * Gift card query side projection.
+ *
+ * @author Matija Kljun
+ */
+public class GiftCardRecord implements Serializable {
 
-    @TargetAggregateIdentifier
     private String id;
-    private Integer amount;
+    private Integer initialValue;
+    private Integer remainingValue;
 
-    public IssueCmd(String id, Integer amount) {
+    public GiftCardRecord(String id, Integer initialValue, Integer remainingValue) {
         this.id = id;
-        this.amount = amount;
+        this.initialValue = initialValue;
+        this.remainingValue = remainingValue;
     }
 
-    public IssueCmd() {
-
+    public GiftCardRecord() {
     }
 
     public String getId() {
         return id;
     }
 
-    public Integer getAmount() {
-        return amount;
+    public Integer getInitialValue() {
+        return initialValue;
+    }
+
+    public Integer getRemainingValue() {
+        return remainingValue;
     }
 
     @Override
     public String toString() {
-        return "IssueCmd{" +
+        return "GiftCardRecord{" +
                 "id='" + id + '\'' +
-                ", amount=" + amount +
+                ", initialValue=" + initialValue +
+                ", remainingValue=" + remainingValue +
                 '}';
     }
 }

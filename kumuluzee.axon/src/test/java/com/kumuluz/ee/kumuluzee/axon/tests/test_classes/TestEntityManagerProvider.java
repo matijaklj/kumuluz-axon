@@ -5,6 +5,7 @@ import org.axonframework.common.jpa.EntityManagerProvider;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+@Deprecated
 public class TestEntityManagerProvider implements EntityManagerProvider {
 
     private EntityManager entityManager;

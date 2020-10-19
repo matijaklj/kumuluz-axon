@@ -53,12 +53,15 @@ public class SerializersTest extends Arquillian {
 
     @Inject
     private Configuration configuration;
+
     @Inject
     @Named("serializer")
     private Serializer serializer;
+
     @Inject
     @Named("eventSerializer")
     private Serializer eventSerializer;
+
     @Inject
     @Named("messageSerializer")
     private Serializer messageSerializer;

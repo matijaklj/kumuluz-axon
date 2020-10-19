@@ -22,7 +22,6 @@ package com.kumuluz.ee.kumuluzee.axon;
 
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.axonframework.commandhandling.gateway.DefaultCommandGateway;
 import org.axonframework.config.Configuration;
 import org.axonframework.config.Configurer;
 import org.axonframework.config.EventProcessingConfiguration;
@@ -35,16 +34,11 @@ import org.axonframework.messaging.correlation.CorrelationDataProvider;
 import org.axonframework.modelling.command.Repository;
 import org.axonframework.modelling.saga.ResourceInjector;
 import org.axonframework.monitoring.MessageMonitor;
-import org.axonframework.queryhandling.DefaultQueryGateway;
 import org.axonframework.queryhandling.QueryBus;
-import org.axonframework.queryhandling.QueryGateway;
 import org.axonframework.queryhandling.QueryUpdateEmitter;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.upcasting.event.EventUpcasterChain;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -161,7 +155,7 @@ public class AxonConfiguration implements Configuration {
 
     @Override
     public void start() {
-        this.afterPropertiesSet();
+        config = configurer.buildConfiguration();
         config.start();
         this.running = true;
     }
@@ -169,10 +163,6 @@ public class AxonConfiguration implements Configuration {
     @Override
     public void shutdown() {
         config.shutdown();
-    }
-
-    public void afterPropertiesSet() {
-        config = configurer.buildConfiguration();
     }
 
 }

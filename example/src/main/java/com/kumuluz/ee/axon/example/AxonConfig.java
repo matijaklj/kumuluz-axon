@@ -22,17 +22,14 @@
 package com.kumuluz.ee.axon.example;
 
 import com.kumuluz.ee.axon.example.command.GiftCard;
-import com.kumuluz.ee.axon.example.api.GiftCardRecord;
-import com.kumuluz.ee.axon.example.query.GiftCardEventHandler;
-import com.kumuluz.ee.kumuluzee.axon.transaction.JtaTransactionManager;
-import org.axonframework.common.jpa.EntityManagerProvider;
-import org.axonframework.common.jpa.SimpleEntityManagerProvider;
-import org.axonframework.common.transaction.Transaction;
-import org.axonframework.common.transaction.TransactionManager;
-import org.axonframework.config.Configurer;
-import org.axonframework.config.DefaultConfigurer;
-import org.axonframework.eventhandling.tokenstore.inmemory.InMemoryTokenStore;
-import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;
+import com.kumuluz.ee.axon.example.api.queries.GiftCardRecord;
+import org.axonframework.common.caching.Cache;
+import org.axonframework.common.caching.WeakReferenceCache;
+import org.axonframework.config.*;
+import org.axonframework.eventsourcing.CachingEventSourcingRepository;
+import org.axonframework.eventsourcing.EventSourcingRepository;
+import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
+import org.axonframework.modelling.command.Repository;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
@@ -42,12 +39,18 @@ import java.io.Serializable;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
+/**
+ * Axon configuration.
+ *
+ * @author Matija Kljun
+ */
 @ApplicationScoped
 public class AxonConfig implements Serializable {
 
     private static final Logger log = Logger.getLogger(AxonConfig.class.getName());
 
     @Produces
+    @ApplicationScoped
     public ConcurrentMap<String, GiftCardRecord> querySideMap() {
         DB querySideDB = DBMaker.memoryDB().make();
         return (ConcurrentMap<String, GiftCardRecord>) querySideDB.hashMap("querySideDBMap").createOrOpen();
@@ -55,15 +58,46 @@ public class AxonConfig implements Serializable {
 
     @Produces
     @ApplicationScoped
+    public Repository<GiftCard> giftCardRepository(Configuration configuration, Cache cache) {
+        return EventSourcingRepository.builder(GiftCard.class)
+                .cache(cache)
+                .eventStore(configuration.eventStore())
+                .build();
+    }
+
+    @Produces
+    @ApplicationScoped
+    public Cache cache() {
+        return new WeakReferenceCache();
+    }
+
+    /*
+    @Produces
+    @ApplicationScoped
+    public ModuleConfiguration myAggregateConfigurer() {
+        AggregateConfigurer agg = AggregateConfigurer.defaultConfiguration(GiftCard.class);
+
+        agg.aggregateType();
+
+        return agg;
+    }
+
+     */
+
+    /*@Produces
+    @ApplicationScoped
     public Configurer testConfig() {
         Configurer configurer = DefaultConfigurer.defaultConfiguration();
 
         configurer.configureEmbeddedEventStore(c -> new InMemoryEventStorageEngine());
-        configurer.configureAggregate(GiftCard.class);
+        //configurer.configureAggregate(GiftCard.class);
         configurer.eventProcessing().registerTokenStore(conf -> new InMemoryTokenStore());
 
         return configurer;
     }
+
+     */
+
 /*
     @Produces
     @ApplicationScoped

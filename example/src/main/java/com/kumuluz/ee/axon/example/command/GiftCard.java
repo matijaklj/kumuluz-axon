@@ -20,18 +20,28 @@
  */
 package com.kumuluz.ee.axon.example.command;
 
-import com.kumuluz.ee.axon.example.api.IssueCmd;
-import com.kumuluz.ee.axon.example.api.IssuedEvt;
-import com.kumuluz.ee.axon.example.api.RedeemCmd;
-import com.kumuluz.ee.axon.example.api.RedeemedEvt;
+import com.kumuluz.ee.axon.example.api.commands.IssueCmd;
+import com.kumuluz.ee.axon.example.api.events.IssuedEvt;
+import com.kumuluz.ee.axon.example.api.commands.RedeemCmd;
+import com.kumuluz.ee.axon.example.api.events.RedeemedEvt;
+import com.kumuluz.ee.kumuluzee.axon.stereotype.Aggregate;
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
+/**
+ * Gift card aggregate.
+ *
+ * @author Matija Kljun
+ */
+@Aggregate
+@ApplicationScoped
 public class GiftCard {
 
     private final static Logger log = LoggerFactory.getLogger(GiftCard.class);
@@ -39,10 +49,6 @@ public class GiftCard {
     @AggregateIdentifier
     private String id;
     private int remainingValue;
-
-    public GiftCard() {
-        log.debug("empty constructor invoked");
-    }
 
     @CommandHandler
     public GiftCard(IssueCmd cmd) {
@@ -65,11 +71,23 @@ public class GiftCard {
         apply(new RedeemedEvt(id, cmd.getAmount()));
     }
 
-    @EventHandler
+    @EventSourcingHandler
     void createGiftCard(IssuedEvt evt) {
         log.info("applying {}", evt);
         id = evt.getId();
         remainingValue = evt.getAmount();
         log.debug("new remaining value: {}", remainingValue);
+    }
+
+    @EventSourcingHandler
+    public void on(RedeemedEvt evt) {
+        log.debug("applying {}", evt);
+        remainingValue -= evt.getAmount();
+        log.debug("new remaining value: {}", remainingValue);
+    }
+
+    public GiftCard() {
+        // Required by Axon
+        log.debug("empty constructor invoked");
     }
 }

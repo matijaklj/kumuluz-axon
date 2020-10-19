@@ -43,12 +43,16 @@ public class DependencyAppender implements MavenDependencyAppender {
 
         List<String> libs = new ArrayList<>();
 
+        libs.add("org.axonframework:axon-server-connector:" + versionsBundle.getString("axon-version"));
         libs.add("org.axonframework:axon-configuration:" + versionsBundle.getString("axon-version"));
         libs.add("org.axonframework:axon-eventsourcing:" + versionsBundle.getString("axon-version"));
         libs.add("org.axonframework:axon-modelling:" + versionsBundle.getString("axon-version"));
         libs.add("org.axonframework:axon-messaging:" + versionsBundle.getString("axon-version"));
+        libs.add("com.kumuluz.ee:kumuluzee-jpa-hibernate:3.11.0");
+        libs.add("com.kumuluz.ee:kumuluzee-jta-narayana:3.11.0");
+        libs.add("com.kumuluz.ee:kumuluzee-servlet-jetty:3.11.0");
+        libs.add("org.postgresql:postgresql:42.2.10");
 
-        libs.add("org.axonframework:axon-server-connector:" + versionsBundle.getString("axon-version"));
         libs.add("com.beust:jcommander:1.27");
 
         return libs;

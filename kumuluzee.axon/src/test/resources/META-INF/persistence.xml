@@ -4,13 +4,9 @@
              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
              http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
              version="2.1">
-    <persistence-unit name="test">
+    <persistence-unit name="kumuluzee-axon-test" transaction-type="JTA">
 
         <jta-data-source>jdbc/testDS</jta-data-source>
-
-        <class>org.axonframework.eventsourcing.eventstore.jpa.DomainEventEntry</class>
-        <class>org.axonframework.eventsourcing.eventstore.jpa.SnapshotEventEntry</class>
-        <class>org.axonframework.eventhandling.tokenstore.jpa.TokenEntry</class>
 
         <properties>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>

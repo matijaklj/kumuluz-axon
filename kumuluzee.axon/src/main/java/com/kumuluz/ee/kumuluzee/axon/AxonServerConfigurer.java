@@ -65,9 +65,9 @@ class AxonServerConfigurer {
         if (config.containsKey("initialNrOfPermits") &&
                 config.containsKey("nrOfNewPermits") &&
                 config.containsKey("newPermitsThreshold"))
-            builder.flowControl((int)config.get("initialNrOfPermits"),
-                    (int)config.get("nrOfNewPermits"),
-                    (int)config.get("newPermitsThreshold"));
+            builder.flowControl(Integer.parseInt((String)config.get("initialNrOfPermits")),
+                    Integer.parseInt((String)config.get("nrOfNewPermits")),
+                    Integer.parseInt((String)config.get("newPermitsThreshold")));
 
         if (config.containsKey("event") && config.get("event") instanceof Map) {
             Map<String, Object> eventConfig = (Map<String, Object>)config.get("event");
@@ -75,9 +75,9 @@ class AxonServerConfigurer {
             if (eventConfig.containsKey("initialNrOfPermits") &&
                     eventConfig.containsKey("nrOfNewPermits") &&
                     eventConfig.containsKey("newPermitsThreshold"))
-                builder.flowControl((int)eventConfig.get("initialNrOfPermits"),
-                    (int)eventConfig.get("nrOfNewPermits"),
-                    (int)eventConfig.get("newPermitsThreshold"));
+                builder.eventFlowControl(Integer.parseInt((String)eventConfig.get("initialNrOfPermits")),
+                    Integer.parseInt((String)eventConfig.get("nrOfNewPermits")),
+                    Integer.parseInt((String)eventConfig.get("newPermitsThreshold")));
         }
 
         if (config.containsKey("command") && config.get("command") instanceof Map) {
@@ -86,9 +86,9 @@ class AxonServerConfigurer {
             if (commandConfig.containsKey("initialNrOfPermits") &&
                     commandConfig.containsKey("nrOfNewPermits") &&
                     commandConfig.containsKey("newPermitsThreshold"))
-                builder.flowControl((int)commandConfig.get("initialNrOfPermits"),
-                        (int)commandConfig.get("nrOfNewPermits"),
-                        (int)commandConfig.get("newPermitsThreshold"));
+                builder.commandFlowControl(Integer.parseInt((String)commandConfig.get("initialNrOfPermits")),
+                        Integer.parseInt((String)commandConfig.get("nrOfNewPermits")),
+                        Integer.parseInt((String)commandConfig.get("newPermitsThreshold")));
         }
 
         if (config.containsKey("query") && config.get("query") instanceof Map) {
@@ -97,25 +97,25 @@ class AxonServerConfigurer {
             if (queryConfig.containsKey("initialNrOfPermits") &&
                     queryConfig.containsKey("nrOfNewPermits") &&
                     queryConfig.containsKey("newPermitsThreshold"))
-                builder.queryFlowControl((int)queryConfig.get("initialNrOfPermits"),
-                        (int)queryConfig.get("nrOfNewPermits"),
-                        (int)queryConfig.get("newPermitsThreshold"));
+                builder.queryFlowControl(Integer.parseInt((String)queryConfig.get("initialNrOfPermits")),
+                        Integer.parseInt((String)queryConfig.get("nrOfNewPermits")),
+                        Integer.parseInt((String)queryConfig.get("newPermitsThreshold")));
         }
 
         if (config.containsKey("snapshotPrefetch"))
-            builder.snapshotPrefetch((int)config.get("snapshotPrefetch"));
+            builder.snapshotPrefetch(Integer.parseInt((String)config.get("snapshotPrefetch")));
 
-        if (config.containsKey("suppressDownloadMessage") && (boolean)config.get("suppressDownloadMessage"))
+        if (config.containsKey("suppressDownloadMessage") && Boolean.parseBoolean((String)config.get("suppressDownloadMessage")))
             builder.suppressDownloadMessage();
 
         if (config.containsKey("maxMessageSize"))
-            builder.maxMessageSize((int)config.get("maxMessageSize"));
+            builder.maxMessageSize(Integer.parseInt((String)config.get("maxMessageSize")));
 
         if (config.containsKey("commandLoadFactor"))
-            builder.commandLoadFactor((int)config.get("commandLoadFactor"));
+            builder.commandLoadFactor(Integer.parseInt((String)config.get("commandLoadFactor")));
 
         if (config.containsKey("connectTimeout"))
-            builder.connectTimeout((int)config.get("connectTimeout"));
+            builder.connectTimeout(Integer.parseInt((String)config.get("connectTimeout")));
 
         configurer.registerComponent(AxonServerConfiguration.class, c -> builder.build());
 

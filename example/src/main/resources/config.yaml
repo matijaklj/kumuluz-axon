@@ -1,12 +1,3 @@
 axon:
   axonserver:
-    componentName: kumuluz-axon-example
-    token: lala-token
-    sslEnabled: true
-    certFile: cert-fail-path
-    event:
-      initialNrOfPermits: 1000
-      nrOfNewPermits: 990
-
-
-
+    componentName: kumuluzEE-axon-example

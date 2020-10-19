@@ -41,13 +41,48 @@ You can provide configuration overrides for the following Axon artifacts by crea
 * [CommandGateway](http://www.axonframework.org/apidocs/4.3/org/axonframework/commandhandling/gateway/CommandGateway.html)
 * [QueryGateway](http://www.axonframework.org/apidocs/4.3/org/axonframework/queryhandling/QueryGateway.html)
 * [TokenStore](http://www.axonframework.org/apidocs/4.3/org/axonframework/eventhandling/tokenstore/TokenStore.html)
-* [Serializer](http://www.axonframework.org/apidocs/4.3/org/axonframework/serialization/Serializer.html) (both a global serializer and an event serializer may be overriden. To override an event serializer, please name the producer "eventSerializer" via the @Named annotation. It is purely optional, but you can use @Named to name your global serializer "serializer". If no @Named annotation is present, the serializer is assumed to be global)
+* [Serializer](http://www.axonframework.org/apidocs/4.3/org/axonframework/serialization/Serializer.html) (All serializers may be overriden. To override an serializer, please name the producer "serializer" via the @Named annotation for the configuration of the global serializer. For the event serializer use "eventSerializer" and for the message serializer use the name "messageSerializer". If no @Named annotation is present, the serializer is assumed to be global)
 * [ErrorHandler](http://www.axonframework.org/apidocs/4.3/org/axonframework/eventhandling/ErrorHandler.html)
 * [ListenerInvocationErrorHandler](https://github.com/AxonFramework/AxonFramework/blob/master/core/src/main/java/org/axonframework/eventhandling/ListenerInvocationErrorHandler.java)
 * [CorrelationDataProvider](https://github.com/AxonFramework/AxonFramework/blob/master/core/src/main/java/org/axonframework/messaging/correlation/CorrelationDataProvider.java)
 * [EventUpcaster](http://www.axonframework.org/apidocs/4.3/org/axonframework/serialization/upcasting/event/EventUpcaster.html)
 * [Configurer](http://www.axonframework.org/apidocs/4.3/org/axonframework/config/Configurer.html)
 * TODO [ModuleConfiguration](http://www.axonframework.org/apidocs/4.3/org/axonframework/config/ModuleConfiguration.html))
+
+## Automatic configuration of Aggregates
+You can use the `Aggregate` annotation to auto detect and configure the aggregate with the Axon configuration. 
+The annotation has one property `repository` that is the repository name, the default name is the aggregate name with appended Repository.
+
+```java
+@Aggregate(repository = "exampleRepository")
+@ApplicationScoped
+public class GiftCard {
+    // aggregate class
+}
+
+@Produces
+@ApplicationScoped
+public Repository<GiftCard> exampleRepository() {
+    // repository producer method
+}
+```
+
+## Automatic registration message handlers 
+All message handlers annotated with `@EventHandler`, `@CommandHandler` and `@QueryHandler` are automatically registered
+with the Axon configuration by the extension.
+
+
+## Axon Server configuration
+Axon Server can be configured through the KumuluzEE Config framework.
+You can see below the configuration of the Axon Server in the `config.yaml` file:
+
+```yaml
+axon:
+  axonserver:
+    componentName: kumuluzEE-axon-example
+    servers: localhost:8024
+
+```
 
 ## Running Axon Server
 
@@ -91,3 +126,8 @@ Issues related to KumuluzEE itself should be submitted at https://github.com/kum
 ## License
 
 MIT
+
+## References
+
+* [Axon framework Github](https://github.com/AxonFramework/AxonFramework)
+* [Axon extension CDI Github](https://github.com/AxonFramework/extension-cdi)

@@ -19,33 +19,31 @@
  *  limitations under the License.
  */
 
-package com.kumuluz.ee.axon.example.api;
+package com.kumuluz.ee.axon.example.api.queries;
 
 import java.io.Serializable;
 
-public class IssuedEvt implements Serializable {
-
+/**
+ * Find gift card by id Axon query.
+ *
+ * @author Matija Kljun
+ */
+public class FindGiftCardQry implements Serializable {
     private String id;
-    private Integer amount;
 
-    public IssuedEvt(String id, Integer amount) {
+    public FindGiftCardQry(String id) {
         this.id = id;
-        this.amount = amount;
     }
 
     public String getId() {
         return id;
     }
 
-    public Integer getAmount() {
-        return amount;
-    }
-
     @Override
     public String toString() {
-        return "IssuedEvt{" +
+        return "FindGiftCardQry{" +
                 "id='" + id + '\'' +
-                ", amount=" + amount +
                 '}';
     }
 }
+

@@ -81,6 +81,8 @@ public class ContainerManagedEntityManagerProvider implements EntityManagerProvi
             emp.persistenceUnitName = this.persistenceUnitName;
             emp.synchronizationType = this.synchronizationType;
 
+            System.out.println("here here :: "+this.persistenceUnitName);
+
             PersistenceWrapper wrapper = this.persistenceUnitHolder.getEntityManagerFactory(this.persistenceUnitName);
 
             emp.emf = wrapper.getEntityManagerFactory();

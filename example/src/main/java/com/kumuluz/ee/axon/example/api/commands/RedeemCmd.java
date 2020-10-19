@@ -19,26 +19,39 @@
  *  limitations under the License.
  */
 
-package com.kumuluz.ee.axon.example.api;
+package com.kumuluz.ee.axon.example.api.commands;
 
-import java.io.Serializable;
+import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-public class FindGiftCardQry implements Serializable {
+/**
+ * Redeem gift card Axon command.
+ *
+ * @author Matija Kljun
+ */
+public class RedeemCmd {
+
+    @TargetAggregateIdentifier
     private String id;
+    private Integer amount;
 
-    public FindGiftCardQry(String id) {
+    public RedeemCmd(String id, Integer amount) {
         this.id = id;
+        this.amount = amount;
     }
 
     public String getId() {
         return id;
     }
 
-    @Override
-    public String toString() {
-        return "FindGiftCardQry{" +
-                "id='" + id + '\'' +
-                '}';
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 }
-

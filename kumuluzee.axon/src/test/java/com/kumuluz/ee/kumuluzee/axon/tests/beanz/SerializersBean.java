@@ -56,6 +56,4 @@ public class SerializersBean {
     public Serializer messageSerializer() {
         return JavaSerializer.builder().build();
     }
-
-
 }

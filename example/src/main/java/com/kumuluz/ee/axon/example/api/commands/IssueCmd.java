@@ -19,34 +19,45 @@
  *  limitations under the License.
  */
 
-package com.kumuluz.ee.axon.example.api;
+package com.kumuluz.ee.axon.example.api.commands;
 
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-public class RedeemCmd {
+import java.io.Serializable;
+
+/**
+ * Issue gift card Axon command.
+ *
+ * @author Matija Kljun
+ */
+public class IssueCmd implements Serializable {
 
     @TargetAggregateIdentifier
     private String id;
     private Integer amount;
 
-    public RedeemCmd(String id, Integer amount) {
+    public IssueCmd(String id, Integer amount) {
         this.id = id;
         this.amount = amount;
+    }
+
+    public IssueCmd() {
+
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public Integer getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
-        this.amount = amount;
+    @Override
+    public String toString() {
+        return "IssueCmd{" +
+                "id='" + id + '\'' +
+                ", amount=" + amount +
+                '}';
     }
 }

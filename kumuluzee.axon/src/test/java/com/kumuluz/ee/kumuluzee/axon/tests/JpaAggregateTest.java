@@ -24,7 +24,11 @@ package com.kumuluz.ee.kumuluzee.axon.tests;
 import com.kumuluz.ee.kumuluzee.axon.tests.beanz.JpaBean;
 import com.kumuluz.ee.kumuluzee.axon.tests.beanz.SerializersBean;
 import com.kumuluz.ee.kumuluzee.axon.tests.test_classes.TestEntityManagerProvider;
+import com.kumuluz.ee.kumuluzee.axon.tests.test_classes.TestJpaAggregate;
 import org.axonframework.common.jpa.EntityManagerProvider;
+import org.axonframework.config.Configuration;
+import org.axonframework.modelling.command.GenericJpaRepository;
+import org.axonframework.modelling.command.Repository;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -43,19 +47,26 @@ public class JpaAggregateTest extends Arquillian {
 
         return ShrinkWrap.create(JavaArchive.class)
                 .addClass(JpaBean.class)
-                .addClass(TestEntityManagerProvider.class)
-                .addAsManifestResource (EmptyAsset.INSTANCE, "beans.xml")
-                .addAsManifestResource (EmptyAsset.INSTANCE, "META-INF/persistance.xml");
+                .addClass(TestJpaAggregate.class)
+                .addAsResource("config.yml")
+                .addAsResource("META-INF/persistence.xml")
+                .addAsManifestResource (EmptyAsset.INSTANCE, "beans.xml");
     }
 
     @Inject
-    EntityManagerProvider entityManagerProvider;
+    Configuration configuration;
 
     @Test
     public void testQueryHandling() {
-        EntityManager em = entityManagerProvider.getEntityManager();
+        EntityManagerProvider emp = configuration.getComponent(EntityManagerProvider.class);
 
-        Assert.assertNotNull(em);
+        Assert.assertNotNull(emp);
+
+        Assert.assertNotNull(emp.getEntityManager());
+
+        Repository<TestJpaAggregate> repo = configuration.repository(TestJpaAggregate.class);
+
+        Assert.assertTrue(repo instanceof GenericJpaRepository);
     }
 
 

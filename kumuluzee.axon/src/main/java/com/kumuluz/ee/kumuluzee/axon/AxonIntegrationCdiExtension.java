@@ -44,9 +44,11 @@ import org.axonframework.queryhandling.QueryGateway;
 import org.axonframework.queryhandling.QueryUpdateEmitter;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.upcasting.event.EventUpcaster;
+import org.jboss.weld.bootstrap.events.ProcessProducerMethodImpl;
 import org.jboss.weld.literal.NamedLiteral;
 
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.spi.*;
 import javax.inject.Named;
 import java.util.*;
@@ -66,18 +68,20 @@ public class AxonIntegrationCdiExtension implements Extension {
     private static final Logger log = Logger.getLogger(AxonIntegrationCdiExtension.class.getName());
 
     private Producer<Configurer> configurerProducer;
-    private Bean<?> configurerBean;
     private Bean<?> commandBusProducerBean;
     private Bean<?> commandGatewayProducerBean;
     private Bean<?> queryBusProducerBean;
     private Bean<?> queryGatewayProducerBean;
     private Bean<?> eventBusProducerBean;
     private Bean<?> eventGatewayProducerBean;
-    private Bean<?> eventProcessingModuleProducerBean;
 
-    private Bean<?> serializerProducerBean; // todo 2 of them
-    private Bean<?> eventSerializerProducerBean; // todo 2 of them
-    private Bean<?> messageSerializerProducerBean; // todo 2 of them
+    // todo
+    private Bean<?> moduleConfigurationProducerBean;
+
+
+    private Bean<?> serializerProducerBean;
+    private Bean<?> eventSerializerProducerBean;
+    private Bean<?> messageSerializerProducerBean;
 
     private Bean<?> eventStorageEngineBean;
     private Bean<?> entityManagerProviderBean;
@@ -106,9 +110,6 @@ public class AxonIntegrationCdiExtension implements Extension {
 
     <T> void processAggregate(@Observes @WithAnnotations({Aggregate.class})
                               final ProcessAnnotatedType<T> processAnnotatedType) {
-        // TODO Aggregate classes may need to be vetoed so that CDI does not
-        // actually try to manage them.
-
         final Class<?> clazz = processAnnotatedType.getAnnotatedType().getJavaClass();
 
         log.fine("Found aggregate: " + clazz + ".");
@@ -118,7 +119,6 @@ public class AxonIntegrationCdiExtension implements Extension {
         aggregates.add(new AggregateDefinition(clazz));
     }
 
-    // todo try doing beanManager lookups for this after afterBeanDiscovery or later
     <T,X> void processAggregateRepositoryProducer(
             @Observes final ProcessProducerMethod<Repository<X>, T> processProducer) {
         log.fine("Found producer for repository: " + processProducer.getAnnotatedProducerMethod().getJavaMember().getName());
@@ -143,74 +143,50 @@ public class AxonIntegrationCdiExtension implements Extension {
 
     <T> void processCommandBusProducerMethod(
             @Observes final ProcessProducerMethod<CommandBus, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for CommandBus found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.commandBusProducerBean != null) {
-            log.severe("There can be only one CommandBus producer!");
-        }
-        this.commandBusProducerBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.commandBusProducerBean = ppm.getBean();
     }
 
     <T> void processCommandGatewayProducerMethod(
             @Observes final ProcessProducerMethod<CommandGateway, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for CommandGateway found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.commandGatewayProducerBean != null) {
-            log.severe("There can be only one CommandGateway producer!");
-        }
-        this.commandGatewayProducerBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.commandGatewayProducerBean = ppm.getBean();
     }
 
     <T> void processQueryBusProducerMethod(
             @Observes final ProcessProducerMethod<QueryBus, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for QueryBus found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.queryBusProducerBean != null) {
-            log.severe("There can be only one QueryBus producer!");
-        }
-        this.queryBusProducerBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.queryBusProducerBean = ppm.getBean();
     }
 
     <T> void processQueryGatewayProducerMethod(
             @Observes final ProcessProducerMethod<QueryGateway, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for QueryGateway found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.queryGatewayProducerBean != null) {
-            log.severe("There can be only one QueryGateway producer!");
-        }
-        this.queryGatewayProducerBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.queryGatewayProducerBean = ppm.getBean();
     }
 
     <T> void processEventBusProducerMethod(
             @Observes final ProcessProducerMethod<EventBus, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for EventBus found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.eventBusProducerBean != null) {
-            log.severe("There can be only one EventBus producer!");
-        }
-        this.eventBusProducerBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.eventBusProducerBean = ppm.getBean();
     }
 
     <T> void processEventGatewayProducerMethod(
             @Observes final ProcessProducerMethod<EventGateway, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for EventGateway found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.eventGatewayProducerBean != null) {
-            log.severe("There can be only one EventGateway producer!");
-        }
-        this.eventGatewayProducerBean = ppm.getBean();
-    }
-
-    // todo remove test
-    public void processSerializerBeanAttributes(@Observes final ProcessBeanAttributes<Serializer> event) {
-        BeanAttributes<Serializer> ba = event.getBeanAttributes();
-
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.eventGatewayProducerBean = ppm.getBean();
     }
 
     <T> void processSerializerProducerMethod(
@@ -219,143 +195,121 @@ public class AxonIntegrationCdiExtension implements Extension {
         if (ppm.getAnnotated().isAnnotationPresent(Named.class)) {
             String name = ppm.getAnnotated().getAnnotation(Named.class).value();
 
-            if (name.equals("eventSerializer")) {
-                log.fine("Producer method for Event Serializer (named 'eventSerializer') found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
+            switch (name) {
+                case "eventSerializer":
+                    log.fine("Producer method for Event Serializer (named 'eventSerializer') found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-                eventSerializerProducerBean = ppm.getBean();
-            } else if (name.equals("messageSerializer")) {
-                log.fine("Producer method for Message Serializer (named 'messageSerializer') found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
+                    if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+                        eventSerializerProducerBean = ppm.getBean();
+                    break;
+                case "messageSerializer":
+                    log.fine("Producer method for Message Serializer (named 'messageSerializer') found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-                messageSerializerProducerBean = ppm.getBean();
-            } else if (name.equals("serializer")) {
-                log.fine("Producer method for General Serializer (named 'serializer') found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
+                    if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+                        messageSerializerProducerBean = ppm.getBean();
+                    break;
+                case "serializer":
+                    log.fine("Producer method for General Serializer (named 'serializer') found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-                if (this.serializerProducerBean != null) {
-                    log.severe("There can be only one General Serializer producer!");
-                }
-                this.serializerProducerBean = ppm.getBean();
+                    if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+                        this.serializerProducerBean = ppm.getBean();
+                    break;
             }
         } else {
             log.fine("Producer method for General Serializer found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-            if (this.serializerProducerBean != null) {
-                log.severe("There can be only one General Serializer producer!");
-            }
-            this.serializerProducerBean = ppm.getBean();
+            if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+                this.serializerProducerBean = ppm.getBean();
         }
     }
 
     <T> void processEventStorageEngineProducerMethod(
             @Observes final ProcessProducerMethod<EventStorageEngine, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for EventStorageEngine found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.eventStorageEngineBean != null) {
-            log.severe("There can be only one EventStorageEngine producer!");
-        }
-        this.eventStorageEngineBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.eventStorageEngineBean = ppm.getBean();
     }
 
     <T> void processEntityManagerProviderProducerMethod(
             @Observes final ProcessProducerMethod<EntityManagerProvider, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for EntityManagerProvider found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.entityManagerProviderBean != null) {
-            log.severe("There can be only one EntityManagerProvider producer!");
-        }
-        this.entityManagerProviderBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.entityManagerProviderBean = ppm.getBean();
     }
 
     <T> void processTransactionManagerProducerMethod(
             @Observes final ProcessProducerMethod<TransactionManager, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for transactionManagerBean found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.transactionManagerBean != null) {
-            log.severe("There can be only one transactionManagerBean producer!");
-        }
-        this.transactionManagerBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.transactionManagerBean = ppm.getBean();
     }
 
     <T> void processTokenStoreProducerMethod(
             @Observes final ProcessProducerMethod<TokenStore, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for TokenStore found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.tokenStoreBean != null) {
-            log.severe("There can be only one TokenStore producer!");
-        }
-        this.tokenStoreBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.tokenStoreBean = ppm.getBean();
     }
 
     <T> void processListenerInvocationErrorHandlerProducerMethod(
             @Observes final ProcessProducerMethod<ListenerInvocationErrorHandler, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for ListenerInvocationErrorHandler found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.listenerInvocationErrorHandlerBean != null) {
-            log.severe("There can be only one ListenerInvocationErrorHandler producer!");
-        }
-        this.listenerInvocationErrorHandlerBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.listenerInvocationErrorHandlerBean = ppm.getBean();
     }
 
 
     <T> void processErrorHandlerProducerMethod(
             @Observes final ProcessProducerMethod<ErrorHandler, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for ErrorHandler found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.errorHandlerBean != null) {
-            log.severe("There can be only one ErrorHandler producer!");
-        }
-        this.errorHandlerBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.errorHandlerBean = ppm.getBean();
     }
 
     <T> void processQueryUpdateEmitterProducerMethod(
             @Observes final ProcessProducerMethod<QueryUpdateEmitter, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for QueryUpdateEmitter found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.queryUpdateEmitterBean != null) {
-            log.severe("There can be only one QueryUpdateEmitter producer!");
-        }
-        this.queryUpdateEmitterBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.queryUpdateEmitterBean = ppm.getBean();
     }
 
     <T> void processDeadlineManagerBeanProducerMethod(
             @Observes final ProcessProducerMethod<DeadlineManager, T> ppm) {
-        // todo handle multiple instances ??
         log.fine("Producer method for DeadlineManager found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.deadlineManagerBean != null) {
-            log.severe("There can be only one DeadlineManager producer!");
-        }
-        this.deadlineManagerBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.deadlineManagerBean = ppm.getBean();
     }
 
-    <T> void processEventProcessingModuleProducerMethod(
-            @Observes final ProcessProducerMethod<EventProcessingModule, T> ppm) {
-        log.fine("Producer method for EventProcessingModule found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
+    <T> void processModuleConfigurationProducerMethod(
+            @Observes final ProcessProducerMethod<ModuleConfiguration, T> ppm) {
+        log.fine("Producer method for ModuleConfiguration found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        if (this.deadlineManagerBean != null) {
-            log.severe("There can be only one EventProcessingModule producer!");
-        }
-        this.eventProcessingModuleProducerBean = ppm.getBean();
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.moduleConfigurationProducerBean = ppm.getBean();
     }
 
     <T> void processCorrelationDataProviderProducerMethod(
             @Observes final ProcessProducerMethod<CorrelationDataProvider, T> ppm) {
         log.fine("Producer method for ErrorHandler found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        this.correlationDataProviderBeans.add(ppm.getBean());
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.correlationDataProviderBeans.add(ppm.getBean());
     }
 
     <T> void processEventUpcasterProducerMethod(
             @Observes final ProcessProducerMethod<EventUpcaster, T> ppm) {
         log.fine("Producer method for EventUpcaster found: " + ppm.getAnnotatedProducerMethod().getJavaMember().getName());
 
-        this.eventUpcasterBeans.add(ppm.getBean());
+        if (ppm.getBean().getQualifiers().contains(Default.Literal.INSTANCE))
+            this.eventUpcasterBeans.add(ppm.getBean());
     }
 
 
@@ -412,11 +366,11 @@ public class AxonIntegrationCdiExtension implements Extension {
                     configurer, Configuration::messageSerializer, messageSerializerProducerBean, bm);
         }
 
-        // event processing module config
-        if (eventProcessingModuleProducerBean != null) {
-            // todo this doesnt work
-            //registerModule(EventProcessingModule.class, configurer::registerModule,
-            //        configurer, Configuration::eventProcessingConfiguration, eventProcessingModuleProducerBean, bm);
+        // todo
+        if (moduleConfigurationProducerBean != null) {
+            configurer.onInitialize(c -> c.onStart(Integer.MIN_VALUE, () -> configurer.registerModule(
+                    getBeanReference(ModuleConfiguration.class, moduleConfigurationProducerBean, bm)
+            )));
         }
 
         // configure other components
@@ -467,6 +421,7 @@ public class AxonIntegrationCdiExtension implements Extension {
         } catch (Throwable ex) {
             log.warning("No Axon Server configured. If you would like to use Axon Server, " +
                     "please add the `axon-server-connector` dependency.");
+            log.warning(ex.toString());
         }
 
         AxonConfiguration configuration = new AxonConfiguration(configurer);
@@ -540,7 +495,7 @@ public class AxonIntegrationCdiExtension implements Extension {
                                         BeanManager bm) {
         registrationFunction.accept(config -> getBeanReference(componentType, bean, bm));
         if (initHandler != null) {
-            // todo remove this ? it doesnt work, it works the same
+            // initialize beans on configuration start
             configurer.onInitialize(c -> c.onStart(Integer.MIN_VALUE, () ->
                 bm.getContext(bean.getScope()).get(bean, bm.createCreationalContext(bean))
             ));
@@ -552,9 +507,10 @@ public class AxonIntegrationCdiExtension implements Extension {
         return (T) bm.getReference(bean, componentType, bm.createCreationalContext(bean));
     }
 
-    public void afterB(@Observes AfterDeploymentValidation event, BeanManager bm) {
+    public void startAxonConfiguration(@Observes AfterDeploymentValidation event, BeanManager bm) {
         Configuration c = CDI.current().select(Configuration.class).get();
         c.start();
+        log.info("Axon configuration started.");
     }
 
     @SuppressWarnings("unchecked")
@@ -563,10 +519,6 @@ public class AxonIntegrationCdiExtension implements Extension {
                 (Repository) bm.getReference(bean, Object.class, bm.createCreationalContext(bean)));
     }
 
-    /**
-     * This was adapted from Axon extension-cdi:
-     * https://github.com/AxonFramework/extension-cdi
-     */
     @SuppressWarnings("unchecked")
     private void registerAggregates(BeanManager beanManager, Configurer configurer) {
         aggregates.forEach(aggregateDefinition -> {
