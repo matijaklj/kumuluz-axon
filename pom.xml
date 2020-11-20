@@ -6,11 +6,11 @@
 
     <groupId>com.kumuluz.ee.axon</groupId>
     <artifactId>kumuluzee-axon-extension</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <modules>
-        <module>example</module>
-        <module>kumuluzee.axon</module>
+        <module>sample</module>
+        <module>kumuluzee-axon</module>
     </modules>
 
     <packaging>pom</packaging>

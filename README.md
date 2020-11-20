@@ -47,7 +47,6 @@ You can provide configuration overrides for the following Axon artifacts by crea
 * [CorrelationDataProvider](https://github.com/AxonFramework/AxonFramework/blob/master/core/src/main/java/org/axonframework/messaging/correlation/CorrelationDataProvider.java)
 * [EventUpcaster](http://www.axonframework.org/apidocs/4.3/org/axonframework/serialization/upcasting/event/EventUpcaster.html)
 * [Configurer](http://www.axonframework.org/apidocs/4.3/org/axonframework/config/Configurer.html)
-* TODO [ModuleConfiguration](http://www.axonframework.org/apidocs/4.3/org/axonframework/config/ModuleConfiguration.html))
 
 ## Automatic configuration of Aggregates
 You can use the `Aggregate` annotation to auto detect and configure the aggregate with the Axon configuration. 
