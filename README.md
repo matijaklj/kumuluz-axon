@@ -1,6 +1,6 @@
 # KumuluzEE Axon Extension
 
-KumuluzEE Axon Extension project allows an easy way to integrate the Axon framework for developing CQRS and DDD applications with the KumuluzEE microservice framework.
+KumuluzEE Axon Extension project allows an easy way to integrate the [Axon framework](https://github.com/AxonFramework/AxonFramework) for developing CQRS and DDD applications with the KumuluzEE microservice framework.
 The extension allows simple straightforward configuration of Axon components and offers annotation for auto-configuring aggregates and aggregates repositories. 
 Furthermore the extension automatically registers all annotated event, command and query handlers.
 
